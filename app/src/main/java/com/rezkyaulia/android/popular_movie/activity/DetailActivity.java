@@ -3,7 +3,9 @@ package com.rezkyaulia.android.popular_movie.activity;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.rezkyaulia.android.popular_movie.model.Movie;
 import com.rezkyaulia.android.popular_movie.R;
@@ -14,6 +16,8 @@ import com.rezkyaulia.android.popular_movie.util.ImageSize;
 import com.squareup.picasso.Picasso;
 
 import java.util.Calendar;
+
+import timber.log.Timber;
 
 /**
  * Created by Rezky Aulia Pratama on 7/2/2017.
@@ -43,6 +47,22 @@ public class DetailActivity extends BaseActivity {
 
         loadData();
 
+        binding.contentAppbar.appBar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                if (verticalOffset >= -20)
+                {
+                    // Collapsed
+                    binding.contentAppbar.textViewTitleBar.setVisibility(View.GONE);
+                }
+                else
+                {
+                    // Not collapsed
+                    binding.contentAppbar.textViewTitleBar.setVisibility(View.VISIBLE);
+
+                }
+            }
+        });
     }
 
     @Override
@@ -59,6 +79,7 @@ public class DetailActivity extends BaseActivity {
     private void loadData(){
         if (mMovie != null){
             binding.contentAppbar.textViewTitle.setText(mMovie.getTitle());
+            binding.contentAppbar.textViewTitleBar.setText(mMovie.getTitle());
             Picasso.with(this)
                     .load(ApiClient.getInstance().URL_IMAGE.concat(ImageSize.getInstance().ORI).concat(mMovie.getBackdropPath()))
                     .placeholder(R.drawable.ic_movie) //this is optional the image to display while the url image is downloading

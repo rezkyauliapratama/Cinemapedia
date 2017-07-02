@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/detail_activity"
         android:layout_width="match_parent"
@@ -7,7 +8,10 @@
         android:fitsSystemWindows="true">
 
         <include layout="@layout/content_appbar_detail" android:id="@+id/content_appbar"/>
-        <include layout="@layout/content_detail" android:id="@+id/content_detail"/>
+
+        <include
+            android:id="@+id/content_detail"
+            layout="@layout/content_detail" />
 
     </android.support.design.widget.CoordinatorLayout>
 </layout>

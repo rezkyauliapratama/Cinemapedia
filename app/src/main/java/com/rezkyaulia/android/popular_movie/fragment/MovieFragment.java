@@ -1,11 +1,14 @@
 package com.rezkyaulia.android.popular_movie.fragment;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutCompat;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +37,8 @@ public class MovieFragment extends BaseFragment {
     OnRecyclerViewInteraction mListener;
     FragmentRecyclerviewBinding binding;
     private String mCategory;
+
+    private boolean isLandscape = false;
 
     public static MovieFragment newInstance() {
         MovieFragment fragment = new MovieFragment();
@@ -81,7 +86,6 @@ public class MovieFragment extends BaseFragment {
 
         });
 
-        loadData();
 
         binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -89,6 +93,38 @@ public class MovieFragment extends BaseFragment {
                 loadData();
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        int widthPixels = metrics.widthPixels;
+        int heightPixels = metrics.heightPixels;
+        float scaleFactor = metrics.density;
+
+        float widthDp = widthPixels / scaleFactor;
+        float heightDp = heightPixels / scaleFactor;
+
+        float smallestWidth = Math.min(widthDp, heightDp);
+
+         if (smallestWidth > 600) {
+            //Device is a 7" tablet
+             isLandscape = true;
+        }else{
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+                isLandscape = true;
+            }else{
+                isLandscape = false;
+            }
+         }
+
+
+        loadData();
+
     }
 
     private void loadData(){
@@ -110,7 +146,11 @@ public class MovieFragment extends BaseFragment {
                     movies = response.getResults();
 
                     if (movies.size()>0){
-                        binding.recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
+                        if (isLandscape){
+                            binding.recyclerView.setLayoutManager(new GridLayoutManager(getContext(),3));
+                        }else{
+                            binding.recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
+                        }
                         binding.recyclerView.setAdapter(new MovieRecyclerviewAdapter(getContext(),movies,mListener));
 
                         if (binding.swipeRefreshLayout != null) {
