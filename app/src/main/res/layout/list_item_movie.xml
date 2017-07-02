@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardUseCompatPadding="true"
+        android:layout_margin="@dimen/margin_xxsmall">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorGrey_200"
+                android:backgroundTint="#5fff"
+                android:backgroundTintMode="src_over"
+                android:padding="@dimen/margin_xxsmall">
+
+                <ImageView
+                    android:id="@+id/image_poster"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:scaleType="center"
+                    android:adjustViewBounds="true"
+                    android:transitionName="@string/poster" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="@dimen/margin_small">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:src="@drawable/star" />
+
+                        <android.support.v4.widget.Space
+                            android:layout_width="@dimen/margin_xxsmall"
+                            android:layout_height="wrap_content"
+                            android:visibility="visible" />
+
+                        <TextView
+                            android:id="@+id/textView_point"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/point"
+                            android:textAppearance="@style/TextStyle.Small"
+                            android:visibility="visible" />
+                    </LinearLayout>
+
+                    <android.support.v4.widget.Space
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/margin_xsmall"
+                        android:visibility="visible" />
+
+                    <TextView
+                        android:id="@+id/textview_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/title"
+                        android:textAppearance="@style/TextStyle.Small"
+                        android:textColor="@color/colorBlack_1000"
+                        android:textStyle="bold" />
+
+                    <android.support.v4.widget.Space
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/margin_xsmall"
+                        android:visibility="visible" />
+
+                    <TextView
+                        android:id="@+id/textview_releaseDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/release_date"
+                        android:textAppearance="@style/TextStyle.Small"
+                        android:textColor="@color/colorBlack_1000" />
+
+                    <android.support.v4.widget.Space
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/margin_small"
+                        android:visibility="visible" />
+
+                    <TextView
+                        android:id="@+id/textview_genre"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/genre"
+                        android:textAppearance="@style/TextStyle.Small"
+                        android:textColor="@color/colorGrey_400"
+                        android:visibility="gone"/>
+                </LinearLayout>
+
+
+            </LinearLayout>
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+</layout>

@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Popular-Movie</string>
+    <string name="poster">Poster</string>
+    <string name="title">title</string>
+    <string name="point">Point</string>
+    <string name="release_date">Release date</string>
+    <string name="genre">Genre</string>
+    <string name="release_on">Release on</string>
+    <string name="sort">Sort</string>
+    <string name="most_popular">Most popular</string>
+    <string name="top_rated">Top rated</string>
+    <string name="category">Category</string>
+    <string name="year">Year</string>
+    <string name="rate">Rate</string>
+    <string name="overview">Overview</string>
+    <string name="movie">Movie</string>
+    <string name="per_rated">/10</string>
+</resources>
