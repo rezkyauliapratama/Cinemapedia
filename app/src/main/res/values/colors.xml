@@ -7,6 +7,7 @@
     <color name="colorPrimaryDark">#212121</color>
     <color name="colorPrimaryLight">#FFFFFF</color>
     <color name="colorAccent">#607D8B</color>
+    <color name="colorAccentTransparent">#50607D8B</color>
     <color name="colorPrimaryText">#212121</color>
     <color name="colorSecondaryText">#757575</color>
     <color name="icons">#FFFFFF</color>

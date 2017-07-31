@@ -12,7 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".activity.MainActivity">
+        <activity android:name=".activity.MainActivity"
+            android:configChanges="keyboardHidden|screenSize"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -22,11 +24,16 @@
 
         <activity
             android:name=".activity.DetailActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:configChanges="keyboardHidden|screenSize"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateVisible|adjustResize|stateAlwaysHidden" />
 
 
+        <!-- Our ContentProvider -->
+        <provider
+            android:name=".data.ContentProviderHelper"
+            android:authorities= "com.rezkyaulia.android.popular_movie"
+            android:exported="false"/>
     </application>
 
 </manifest>

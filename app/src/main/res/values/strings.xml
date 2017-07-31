@@ -15,4 +15,12 @@
     <string name="overview">Overview</string>
     <string name="movie">Movie</string>
     <string name="per_rated">/10</string>
+    <string name="trailer">Trailer</string>
+    <string name="review">Review</string>
+    <string name="no_review">No Review</string>
+    <string name="name">Name</string>
+    <string name="content">Content</string>
+    <string name="favorite">Favorite</string>
+
+
 </resources>

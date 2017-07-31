@@ -3,6 +3,7 @@ package com.rezkyaulia.android.popular_movie;
 import android.app.Application;
 
 import com.androidnetworking.AndroidNetworking;
+import com.rezkyaulia.android.popular_movie.database.DbHelper;
 
 import timber.log.Timber;
 
@@ -16,5 +17,6 @@ public class BaseApplication extends Application {
         super.onCreate();
         Timber.plant(new Timber.DebugTree());
         AndroidNetworking.initialize(getApplicationContext());
+
     }
 }

@@ -1,5 +1,9 @@
 package com.rezkyaulia.android.popular_movie.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.provider.BaseColumns;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -10,7 +14,8 @@ import java.util.List;
  * Created by Rezky Aulia Pratama on 7/1/2017.
  */
 
-public class Movie implements Serializable{
+public class Movie implements Parcelable{
+
     @SerializedName("poster_path")
     private String posterPath;
     @SerializedName("adult")
@@ -40,6 +45,9 @@ public class Movie implements Serializable{
     @SerializedName("vote_average")
     private Double voteAverage;
 
+    public Movie() {
+    }
+
     public Movie(String posterPath, boolean adult, String overview, String releaseDate, List<Integer> genreIds, Integer id,
                  String originalTitle, String originalLanguage, String title, String backdropPath, Double popularity,
                  Integer voteCount, Boolean video, Double voteAverage) {
@@ -58,6 +66,7 @@ public class Movie implements Serializable{
         this.video = video;
         this.voteAverage = voteAverage;
     }
+
 
     public String getPosterPath() {
         return posterPath;
@@ -170,4 +179,58 @@ public class Movie implements Serializable{
     public void setVoteAverage(Double voteAverage) {
         this.voteAverage = voteAverage;
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.posterPath);
+        dest.writeByte(this.adult ? (byte) 1 : (byte) 0);
+        dest.writeString(this.overview);
+        dest.writeString(this.releaseDate);
+        dest.writeList(this.genreIds);
+        dest.writeValue(this.id);
+        dest.writeString(this.originalTitle);
+        dest.writeString(this.originalLanguage);
+        dest.writeString(this.title);
+        dest.writeString(this.backdropPath);
+        dest.writeValue(this.popularity);
+        dest.writeValue(this.voteCount);
+        dest.writeValue(this.video);
+        dest.writeValue(this.voteAverage);
+    }
+
+    protected Movie(Parcel in) {
+        this.posterPath = in.readString();
+        this.adult = in.readByte() != 0;
+        this.overview = in.readString();
+        this.releaseDate = in.readString();
+        this.genreIds = new ArrayList<Integer>();
+        in.readList(this.genreIds, Integer.class.getClassLoader());
+        this.id = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.originalTitle = in.readString();
+        this.originalLanguage = in.readString();
+        this.title = in.readString();
+        this.backdropPath = in.readString();
+        this.popularity = (Double) in.readValue(Double.class.getClassLoader());
+        this.voteCount = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.video = (Boolean) in.readValue(Boolean.class.getClassLoader());
+        this.voteAverage = (Double) in.readValue(Double.class.getClassLoader());
+    }
+
+    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel source) {
+            return new Movie(source);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
 }

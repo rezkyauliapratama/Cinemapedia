@@ -8,11 +8,11 @@ import java.util.List;
  * Created by Rezky Aulia Pratama on 7/1/2017.
  */
 
-public class ApiResponse {
+public class ApiReviewResponse {
     @SerializedName("page")
     private int page;
     @SerializedName("results")
-    private List<Movie> results;
+    private List<Review> results;
     @SerializedName("total_results")
     private int totalResults;
     @SerializedName("total_pages")
@@ -26,11 +26,11 @@ public class ApiResponse {
         this.page = page;
     }
 
-    public List<Movie> getResults() {
+    public List<Review> getResults() {
         return results;
     }
 
-    public void setResults(List<Movie> results) {
+    public void setResults(List<Review> results) {
         this.results = results;
     }
 

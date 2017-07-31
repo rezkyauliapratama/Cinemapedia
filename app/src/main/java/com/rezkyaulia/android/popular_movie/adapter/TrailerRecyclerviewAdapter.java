@@ -1,5 +1,6 @@
 package com.rezkyaulia.android.popular_movie.adapter;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,67 +10,57 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import com.rezkyaulia.android.popular_movie.R;
-import com.rezkyaulia.android.popular_movie.databinding.ListItemMovieBinding;
-import com.rezkyaulia.android.popular_movie.fragment.MovieFragment;
+import com.rezkyaulia.android.popular_movie.databinding.ListItemTrailerBinding;
 import com.rezkyaulia.android.popular_movie.model.Movie;
+import com.rezkyaulia.android.popular_movie.model.Trailer;
 import com.rezkyaulia.android.popular_movie.util.ApiClient;
-import com.rezkyaulia.android.popular_movie.util.Common;
 import com.rezkyaulia.android.popular_movie.util.ImageSize;
 import com.squareup.picasso.Picasso;
 
-import java.util.Calendar;
 import java.util.List;
 
-import timber.log.Timber;
-
-import static android.text.TextUtils.concat;
-
 /**
- * Created by Rezky Aulia Pratama on 7/1/2017.
+ * Created by Rezky Aulia Pratama on 7/30/2017.
  */
 
-public class MovieRecyclerviewAdapter extends RecyclerView.Adapter<MovieRecyclerviewAdapter.ViewHolder>{
-    private Context mContext;
-    private List<Movie> mItems;
-    private MovieFragment.OnRecyclerViewInteraction mListener;
+public class TrailerRecyclerviewAdapter extends RecyclerView.Adapter<TrailerRecyclerviewAdapter.ViewHolder> {
 
+    Context mContext;
+    List<Trailer> mItems;
+    OnRecyclerViewInteraction mListener;
 
     private int animationCount = 0;
     private int lastPosition = -1;
 
-    public MovieRecyclerviewAdapter(Context context,List<Movie> items,MovieFragment.OnRecyclerViewInteraction listener ) {
+    public TrailerRecyclerviewAdapter(Context context, List<Trailer> items,OnRecyclerViewInteraction listener) {
         mContext = context;
         mItems = items;
         mListener = listener;
     }
 
+
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public TrailerRecyclerviewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item_movie, parent, false);
-        return new MovieRecyclerviewAdapter.ViewHolder(view);
+                .inflate(R.layout.list_item_trailer, parent, false);
+        return new TrailerRecyclerviewAdapter.ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        final Movie mItem = mItems.get(position);
-
-        holder.binding.textviewTitle.setText(mItem.getTitle());
-        holder.binding.textViewPoint.setText(String.valueOf(mItem.getVoteAverage()));
-
-        String year = String.valueOf(Common.getInstance().parseDate(mItem.getReleaseDate()).get(Calendar.YEAR));
-        holder.binding.textviewReleaseDate.setText(year);
+    public void onBindViewHolder(TrailerRecyclerviewAdapter.ViewHolder holder, int position) {
+        final Trailer item = mItems.get(position);
 
         Picasso.with(mContext)
-                .load(ApiClient.getInstance().URL_IMAGE.concat(ImageSize.getInstance().NORMAL).concat(mItem.getPosterPath()))
+                .load(ApiClient.getInstance().URL_THUMBNAIL.concat(item.getKey()).concat("/0.jpg"))
                 .placeholder(R.drawable.ic_movie) //this is optional the image to display while the url image is downloading
                 .error(R.drawable.ic_error_sing)         //this is also optional if some error has occurred in downloading the image this image would be displayed
-                .into(holder.binding.imagePoster);
+                .into(holder.binding.imageThumbnail);
 
-        holder.binding.getRoot().setOnClickListener(new View.OnClickListener() {
+        holder.binding.textViewTitle.setText(item.getName());
+        holder.binding.cardview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.OnListItemInteraction(mItem);
+                mListener.OnListItemInteraction(item);
             }
         });
 
@@ -128,14 +119,19 @@ public class MovieRecyclerviewAdapter extends RecyclerView.Adapter<MovieRecycler
         holder.binding.getRoot().clearAnimation();
     }
 
-
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private final ListItemMovieBinding binding;
+        private final ListItemTrailerBinding binding;
         public ViewHolder(View itemView) {
             super(itemView);
-            binding = ListItemMovieBinding.bind(itemView);
+            binding = ListItemTrailerBinding.bind(itemView);
         }
     }
 
+
+    public interface OnRecyclerViewInteraction {
+        // TODO: Update argument type and name
+        void OnListItemInteraction(Trailer trailer);
+
+    }
 
 }
