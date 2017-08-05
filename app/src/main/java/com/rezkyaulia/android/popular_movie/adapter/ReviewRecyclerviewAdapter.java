@@ -9,7 +9,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import com.rezkyaulia.android.popular_movie.R;
-import com.rezkyaulia.android.popular_movie.databinding.ListItemReviewBinding;
+import com.rezkyaulia.android.popular_movie.databinding.ListDetailItemReviewBinding;
+import com.rezkyaulia.android.popular_movie.databinding.ListDetailItemReviewBinding;
 import com.rezkyaulia.android.popular_movie.model.Review;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public class ReviewRecyclerviewAdapter extends RecyclerView.Adapter<ReviewRecycl
     @Override
     public ReviewRecyclerviewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item_review, parent, false);
+                .inflate(R.layout.list_detail_item_review, parent, false);
         return new ReviewRecyclerviewAdapter.ViewHolder(view);
     }
 
@@ -100,10 +101,10 @@ public class ReviewRecyclerviewAdapter extends RecyclerView.Adapter<ReviewRecycl
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private final ListItemReviewBinding binding;
+        private final ListDetailItemReviewBinding binding;
         public ViewHolder(View itemView) {
             super(itemView);
-            binding = ListItemReviewBinding.bind(itemView);
+            binding = ListDetailItemReviewBinding.bind(itemView);
         }
     }
 

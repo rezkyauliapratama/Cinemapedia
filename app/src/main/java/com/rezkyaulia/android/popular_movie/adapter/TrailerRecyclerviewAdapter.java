@@ -1,6 +1,5 @@
 package com.rezkyaulia.android.popular_movie.adapter;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,11 +9,9 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import com.rezkyaulia.android.popular_movie.R;
-import com.rezkyaulia.android.popular_movie.databinding.ListItemTrailerBinding;
-import com.rezkyaulia.android.popular_movie.model.Movie;
+import com.rezkyaulia.android.popular_movie.databinding.ListDetailItemTrailerBinding;
 import com.rezkyaulia.android.popular_movie.model.Trailer;
 import com.rezkyaulia.android.popular_movie.util.ApiClient;
-import com.rezkyaulia.android.popular_movie.util.ImageSize;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -42,7 +39,7 @@ public class TrailerRecyclerviewAdapter extends RecyclerView.Adapter<TrailerRecy
     @Override
     public TrailerRecyclerviewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item_trailer, parent, false);
+                .inflate(R.layout.list_detail_item_trailer, parent, false);
         return new TrailerRecyclerviewAdapter.ViewHolder(view);
     }
 
@@ -105,7 +102,6 @@ public class TrailerRecyclerviewAdapter extends RecyclerView.Adapter<TrailerRecy
                 public void run() {
                     viewToAnimate.setVisibility(View.VISIBLE);
                     viewToAnimate.startAnimation(animation);
-
                 }
             }, animationCount * 100);
             lastPosition = position;
@@ -120,10 +116,10 @@ public class TrailerRecyclerviewAdapter extends RecyclerView.Adapter<TrailerRecy
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private final ListItemTrailerBinding binding;
+        private final ListDetailItemTrailerBinding binding;
         public ViewHolder(View itemView) {
             super(itemView);
-            binding = ListItemTrailerBinding.bind(itemView);
+            binding = ListDetailItemTrailerBinding.bind(itemView);
         }
     }
 

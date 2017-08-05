@@ -37,18 +37,32 @@ public class MainActivity extends BaseActivity implements MovieFragment.OnRecycl
         setSupportActionBar(binding.includeAppBar.toolbar);
         getSupportActionBar().setTitle(R.string.movie);
 
-        if (savedInstanceState != null){
+        if(savedInstanceState != null){
             mCategory = savedInstanceState.getString(EXTRA1);
+            fragment = getSupportFragmentManager().getFragment(savedInstanceState, "movieFragment");
         }else{
             mCategory = Constant.getInstance().QUERY_POPULAR;
+            fragment = MovieFragment.newInstance(mCategory);
         }
 
-        fragment = MovieFragment.newInstance(mCategory);
+        if (fragment != null){
+            displayFragment(binding.includeContent.framelayout.getId(),fragment);
 
-        displayFragment(binding.includeContent.framelayout.getId(),fragment);
+        }
+
+        Timber.e("OnCreate ! ");
 
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //Save the fragment's instance
+        Timber.e("onSaveInstanceState ! ");
+
+        getSupportFragmentManager().putFragment(outState, "movieFragment", fragment );
+        outState.putString(EXTRA1, mCategory);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -89,12 +103,7 @@ public class MainActivity extends BaseActivity implements MovieFragment.OnRecycl
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        Timber.e("category : "+mCategory);
-        outState.putString(EXTRA1, mCategory);
-        super.onSaveInstanceState(outState);
-    }
+
 
     @Override
     public void OnListItemInteraction(Movie movie) {

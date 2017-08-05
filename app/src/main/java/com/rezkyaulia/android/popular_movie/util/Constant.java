@@ -41,6 +41,11 @@ public class Constant {
     public final String API_KEY = "api_key";
     public final String YOUTUBE = "vnd.youtube:" ;
 
+    public final int TYPE_MAIN = 1;
+    public final int TYPE_TRAILER = 2;
+    public final int TYPE_REVIEW = 3;
+
+
 
 
 
