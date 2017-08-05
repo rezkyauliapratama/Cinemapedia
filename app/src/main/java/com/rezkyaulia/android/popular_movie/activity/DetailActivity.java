@@ -9,10 +9,8 @@ import android.database.SQLException;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.AppBarLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,11 +22,9 @@ import android.widget.Toast;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.google.gson.Gson;
-import com.rezkyaulia.android.popular_movie.adapter.DetailMovieRecyclerviewAdapter;
 import com.rezkyaulia.android.popular_movie.adapter.MovieRecyclerviewAdapter;
 import com.rezkyaulia.android.popular_movie.adapter.ReviewRecyclerviewAdapter;
 import com.rezkyaulia.android.popular_movie.adapter.TrailerRecyclerviewAdapter;
-import com.rezkyaulia.android.popular_movie.data.DetailModel;
 import com.rezkyaulia.android.popular_movie.database.DbHelper;
 import com.rezkyaulia.android.popular_movie.model.ApiReviewResponse;
 import com.rezkyaulia.android.popular_movie.model.ApiTrailerResponse;
@@ -43,7 +39,6 @@ import com.rezkyaulia.android.popular_movie.util.Constant;
 import com.rezkyaulia.android.popular_movie.util.ImageSize;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -58,10 +53,8 @@ public class DetailActivity extends BaseActivity implements TrailerRecyclerviewA
     public static final String EXTRA1 = "EXTRA1";
 
     Movie mMovie;
-    List<Object> mitems;
+
     ActivityDetailBinding binding;
-    LinearLayoutManager layoutManager;
-    DetailMovieRecyclerviewAdapter adapter;
     private boolean isLandscape = false;
 
     @Override
@@ -79,9 +72,6 @@ public class DetailActivity extends BaseActivity implements TrailerRecyclerviewA
 
         mMovie = (Movie) getIntent().getParcelableExtra(EXTRA1);
 
-        mitems = new ArrayList<>();
-        loadData();
-        initRecyclerview();
 
         binding.contentAppbar.appBar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
@@ -113,6 +103,12 @@ public class DetailActivity extends BaseActivity implements TrailerRecyclerviewA
     }
 
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+
+    }
 
     @Override
     protected void onResume() {
@@ -141,6 +137,7 @@ public class DetailActivity extends BaseActivity implements TrailerRecyclerviewA
             }
         }
 
+        loadData();
     }
 
     private void loadData(){
@@ -154,27 +151,36 @@ public class DetailActivity extends BaseActivity implements TrailerRecyclerviewA
                     .error(R.drawable.ic_error_sing)         //this is also optional if some error has occurred in downloading the image this image would be displayed
                     .into(binding.contentAppbar.imageBackdrop);
 
-            mitems.add(0,mMovie);
-            mitems.add(1,new DetailModel(Constant.getInstance().TYPE_TRAILER,mMovie.getId()));
-            mitems.add(2,new DetailModel(Constant.getInstance().TYPE_REVIEW,mMovie.getId()));
+            String year = String.valueOf(Common.getInstance().parseDate(mMovie.getReleaseDate()).get(Calendar.YEAR));
 
-            if (adapter != null)
-                adapter.notifyDataSetChanged();
+            binding.contentDetail.textViewYear.setText(year);
+            binding.contentDetail.textViewRate.setText(String.valueOf(mMovie.getVoteAverage()).concat(getString(R.string.per_rated)));
+            binding.contentDetail.textViewOverview.setText(mMovie.getOverview());
 
+            Cursor cursor = getContentResolver().query(
+                    DbHelper.getInstance(this).getMovieGenreContract().CONTENT_URI,
+                    null,
+                    String.valueOf(mMovie.getId()),
+                    null,
+                    null);
 
+            if (cursor.moveToFirst())
+                do {
+                    binding.contentDetail.textViewGenre.append(cursor.getString(cursor.getColumnIndex(DbHelper.getInstance(this).getGenreContract().NAME)).concat("; "));
+                } while (cursor.moveToNext());
+            cursor.close();
+
+            Picasso.with(this)
+                    .load(ApiClient.getInstance().URL_IMAGE.concat(ImageSize.getInstance().MEDIUM).concat(mMovie.getPosterPath()))
+                    .placeholder(R.drawable.ic_movie) //this is optional the image to display while the url image is downloading
+                    .error(R.drawable.ic_error_sing)         //this is also optional if some error has occurred in downloading the image this image would be displayed
+                    .into(binding.contentDetail.imagePoster);
+
+            checkFavorite();
+            getTrailer();
+            getReview();
         }
-    }
-
-    private void initRecyclerview(){
-        layoutManager = new LinearLayoutManager(this);
-        adapter = new DetailMovieRecyclerviewAdapter(this,mitems,DetailActivity.this);
-        binding.contentDetail.recyclerView.setLayoutManager(layoutManager);
-        binding.contentDetail.recyclerView.setHasFixedSize(true);
-        binding.contentDetail.recyclerView.setAdapter(adapter);
-
-
-
-
+        setOnClickFavorite();
     }
 
     private void checkFavorite(){
@@ -190,15 +196,87 @@ public class DetailActivity extends BaseActivity implements TrailerRecyclerviewA
                 null);
 
         Timber.e("cursor getcount : "+cursor.getCount());
-        /*if (cursor.getCount() > 0){
+        if (cursor.getCount() > 0){
             binding.contentDetail.imageViewFavorite.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite));
         }else{
             binding.contentDetail.imageViewFavorite.setImageDrawable(getResources().getDrawable(R.drawable.ic_unfavorite));
 
-        }*/
+        }
     }
 
+    private void getTrailer(){
+        ApiClient.getInstance().getListTrailer(mMovie.getId(), new ApiClient.OnFetchDataListener<ApiTrailerResponse>() {
+            @Override
+            public void OnResponse(ApiTrailerResponse response) {
+                Timber.e(new Gson().toJson(response));
+                List<Trailer> trailers = response.getResults();
 
+                if (trailers.size() > 0){
+                    if (isLandscape){
+                        binding.contentDetail.recyclerViewTrailer.setLayoutManager(new GridLayoutManager(DetailActivity.this,3));
+                    }else{
+                        binding.contentDetail.recyclerViewTrailer.setLayoutManager(new GridLayoutManager(DetailActivity.this,2));
+                    }
+                    binding.contentDetail.recyclerViewTrailer.setAdapter(new TrailerRecyclerviewAdapter(DetailActivity.this,trailers,DetailActivity.this));
+                }
+
+            }
+
+            @Override
+            public void OnError(ANError error) {
+                Timber.e("ERROR : "+error.getMessage());
+            }
+        });
+    }
+
+    private void setOnClickFavorite(){
+
+        binding.contentDetail.imageViewFavorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ContentValues value = DbHelper.getInstance(DetailActivity.this)
+                        .getFavoriteContract().contentValue(mMovie);
+
+                try{
+                    getContentResolver().insert(DbHelper.getInstance(DetailActivity.this).getFavoriteContract().CONTENT_URI, value);
+                }catch (SQLException e){
+                    String stringId = Integer.toString(mMovie.getId());
+                    Uri uri = DbHelper.getInstance(DetailActivity.this).getFavoriteContract().CONTENT_URI;
+                    uri = uri.buildUpon().appendPath(stringId).build();
+
+                    getContentResolver().delete(uri, null, null);
+                }
+
+                checkFavorite();
+
+            }
+        });
+
+
+    }
+
+    private void getReview(){
+        ApiClient.getInstance().getListReview(mMovie.getId(), new ApiClient.OnFetchDataListener<ApiReviewResponse>() {
+            @Override
+            public void OnResponse(ApiReviewResponse response) {
+                Timber.e(new Gson().toJson(response));
+                List<Review> reviews = response.getResults();
+
+                if (reviews.size() > 0){
+
+                    binding.contentDetail.recyclerViewReview.setLayoutManager(new LinearLayoutManager(DetailActivity.this));
+
+                    binding.contentDetail.recyclerViewReview.setAdapter(new ReviewRecyclerviewAdapter(DetailActivity.this,reviews));
+                }
+
+            }
+
+            @Override
+            public void OnError(ANError error) {
+                Timber.e("ERROR : "+error.getMessage());
+            }
+        });
+    }
     public  void watchYoutubeVideo(String id) {
         Intent applicationIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Constant.getInstance().YOUTUBE + id));
         Intent browserIntent = new Intent(Intent.ACTION_VIEW,
