@@ -8,6 +8,7 @@
     <string name="release_on">Release on</string>
     <string name="sort">Sort</string>
     <string name="most_popular">Most popular</string>
+    <string name="upcoming">Upcoming</string>
     <string name="top_rated">Top rated</string>
     <string name="category">Category</string>
     <string name="year">Year</string>
@@ -22,6 +23,7 @@
     <string name="content">Content</string>
     <string name="favorite">Favorite</string>
     <string name="no_trailer">No Trailer</string>
+    <string name="now_playing">Now playing</string>
 
 
 </resources>

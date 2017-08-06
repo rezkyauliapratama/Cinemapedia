@@ -1,6 +1,8 @@
 package com.rezkyaulia.android.popular_movie.adapter;
 
 import android.content.Context;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,12 +10,18 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
+import com.androidnetworking.error.ANError;
 import com.rezkyaulia.android.popular_movie.R;
 import com.rezkyaulia.android.popular_movie.databinding.ListItemMovieBinding;
+import com.rezkyaulia.android.popular_movie.databinding.ListRecyclerviewHorizontalBinding;
 import com.rezkyaulia.android.popular_movie.fragment.MovieFragment;
+import com.rezkyaulia.android.popular_movie.model.ApiMovieResponse;
 import com.rezkyaulia.android.popular_movie.model.Movie;
+import com.rezkyaulia.android.popular_movie.model.MovieAbstract;
+import com.rezkyaulia.android.popular_movie.model.MovieHorizontal;
 import com.rezkyaulia.android.popular_movie.util.ApiClient;
 import com.rezkyaulia.android.popular_movie.util.Common;
+import com.rezkyaulia.android.popular_movie.util.Constant;
 import com.rezkyaulia.android.popular_movie.util.ImageSize;
 import com.squareup.picasso.Picasso;
 
@@ -22,37 +30,63 @@ import java.util.List;
 
 import timber.log.Timber;
 
-import static android.text.TextUtils.concat;
-
 /**
  * Created by Rezky Aulia Pratama on 7/1/2017.
  */
 
-public class MovieRecyclerviewAdapter extends RecyclerView.Adapter<MovieRecyclerviewAdapter.ViewHolder>{
+public class MovieRecyclerviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private Context mContext;
-    private List<Movie> mItems;
+    private List<MovieAbstract> mItems;
     private MovieFragment.OnRecyclerViewInteraction mListener;
 
 
     private int animationCount = 0;
     private int lastPosition = -1;
 
-    public MovieRecyclerviewAdapter(Context context,List<Movie> items,MovieFragment.OnRecyclerViewInteraction listener ) {
+    public MovieRecyclerviewAdapter(Context context, List<MovieAbstract> items, MovieFragment.OnRecyclerViewInteraction listener ) {
         mContext = context;
         mItems = items;
         mListener = listener;
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item_movie, parent, false);
-        return new MovieRecyclerviewAdapter.ViewHolder(view);
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if (viewType == Constant.getInstance().TYPE_MAIN) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.list_item_movie, parent, false);
+            return new MainViewHolder(view);
+        } else if (viewType == Constant.getInstance().TYPE_SECONDARY){
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.list_recyclerview_horizontal, parent, false);
+            return new HorizontalViewHolder(view);
+        }
+        return null;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        final Movie mItem = mItems.get(position);
+    public int getItemViewType(int position) {
+        if (mItems.get(position) instanceof MovieAbstract){
+            if (mItems.get(position).getType() == Constant.getInstance().TYPE_MAIN){
+                return Constant.getInstance().TYPE_MAIN;
+            }else if (mItems.get(position).getType() == Constant.getInstance().TYPE_SECONDARY){
+                return Constant.getInstance().TYPE_SECONDARY;
+            }
+        }
+        return super.getItemViewType(position);
+
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof MainViewHolder) {
+            onMainBindViewHolder((MainViewHolder) holder, position);
+        } else {
+            onSecondaryBindViewHolder((HorizontalViewHolder) holder, position);
+        }
+    }
+
+    public void onMainBindViewHolder(final MainViewHolder holder, final int position) {
+        final Movie mItem = mItems.get(position).getMovie();
 
         holder.binding.textviewTitle.setText(mItem.getTitle());
         holder.binding.textViewPoint.setText(String.valueOf(mItem.getVoteAverage()));
@@ -77,6 +111,41 @@ public class MovieRecyclerviewAdapter extends RecyclerView.Adapter<MovieRecycler
 
         holder.binding.executePendingBindings();   // update the view now
     }
+
+
+    public void onSecondaryBindViewHolder(final HorizontalViewHolder holder, final int position) {
+        String category = "";
+        String query = "";
+        if(mItems.get(position).getCategory().equals(Constant.getInstance().QUERY_UPCOMING)){
+            category = mContext.getResources().getString(R.string.now_playing);
+            query = Constant.getInstance().QUERY_NOW_PLAYING;
+        }else {
+            category = mContext.getResources().getString(R.string.upcoming);
+            query = Constant.getInstance().QUERY_UPCOMING;
+
+        }
+
+        holder.binding.viewTitle.textviewTitle.setText(category);
+
+        ApiClient.getInstance().getListMovie(query, new ApiClient.OnFetchDataListener<ApiMovieResponse>() {
+            @Override
+            public void OnResponse(ApiMovieResponse response) {
+                RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(mContext,LinearLayoutManager.HORIZONTAL,false);
+                holder.binding.recyclerViewHorizontal.setLayoutManager(mLayoutManager);
+                MovieHorizontalRecyclerviewAdapter adapter = new MovieHorizontalRecyclerviewAdapter(mContext,response.getResults(),mListener);
+                holder.binding.recyclerViewHorizontal.setAdapter(adapter);
+
+            }
+
+            @Override
+            public void OnError(ANError error) {
+                Timber.e("ERROR : "+error.getMessage());
+            }
+        });
+        holder.binding.executePendingBindings();   // update the view now
+
+    }
+
 
     @Override
     public int getItemCount() {
@@ -122,18 +191,33 @@ public class MovieRecyclerviewAdapter extends RecyclerView.Adapter<MovieRecycler
     }
 
     @Override
-    public void onViewDetachedFromWindow(ViewHolder holder) {
+    public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
-        holder.binding.getRoot().setVisibility(View.VISIBLE);
-        holder.binding.getRoot().clearAnimation();
+        if (holder instanceof MainViewHolder) {
+            ((MainViewHolder)holder).binding.getRoot().setVisibility(View.VISIBLE);
+            ((MainViewHolder)holder).binding.getRoot().clearAnimation();
+        } else {
+            ((HorizontalViewHolder)holder).binding.getRoot().setVisibility(View.VISIBLE);
+            ((HorizontalViewHolder)holder).binding.getRoot().clearAnimation();
+        }
     }
 
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+
+
+    private class MainViewHolder extends RecyclerView.ViewHolder {
         private final ListItemMovieBinding binding;
-        public ViewHolder(View itemView) {
+        public MainViewHolder(View itemView) {
             super(itemView);
             binding = ListItemMovieBinding.bind(itemView);
+        }
+    }
+
+    private class HorizontalViewHolder extends RecyclerView.ViewHolder{
+        private final ListRecyclerviewHorizontalBinding binding;
+        public HorizontalViewHolder(View itemView) {
+            super(itemView);
+            binding = ListRecyclerviewHorizontalBinding.bind(itemView);
         }
     }
 

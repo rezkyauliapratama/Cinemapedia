@@ -9,66 +9,69 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import com.rezkyaulia.android.popular_movie.R;
-import com.rezkyaulia.android.popular_movie.databinding.ListDetailItemTrailerBinding;
-import com.rezkyaulia.android.popular_movie.model.Trailer;
+import com.rezkyaulia.android.popular_movie.databinding.ListItemMovieBinding;
+import com.rezkyaulia.android.popular_movie.databinding.ListItemMovieSmallBinding;
+import com.rezkyaulia.android.popular_movie.databinding.ListRecyclerviewHorizontalBinding;
+import com.rezkyaulia.android.popular_movie.fragment.MovieFragment;
+import com.rezkyaulia.android.popular_movie.model.Movie;
 import com.rezkyaulia.android.popular_movie.util.ApiClient;
+import com.rezkyaulia.android.popular_movie.util.Common;
+import com.rezkyaulia.android.popular_movie.util.ImageSize;
 import com.squareup.picasso.Picasso;
 
+import java.util.Calendar;
 import java.util.List;
 
 /**
- * Created by Rezky Aulia Pratama on 7/30/2017.
+ * Created by Rezky Aulia Pratama on 8/6/2017.
  */
 
-public class TrailerRecyclerviewAdapter extends RecyclerView.Adapter<TrailerRecyclerviewAdapter.ViewHolder> {
-
+public class MovieHorizontalRecyclerviewAdapter extends RecyclerView.Adapter<MovieHorizontalRecyclerviewAdapter.ViewHolder> {
+    List<Movie> mItems;
     Context mContext;
-    List<Trailer> mItems;
-    OnRecyclerViewInteraction mListener;
+    MovieFragment.OnRecyclerViewInteraction mListener;
+
 
     private int animationCount = 0;
     private int lastPosition = -1;
-
-    public TrailerRecyclerviewAdapter(Context context, List<Trailer> items,OnRecyclerViewInteraction listener) {
-        mContext = context;
-        mItems = items;
-        mListener = listener;
+    public MovieHorizontalRecyclerviewAdapter(Context mContext,List<Movie> mItems, MovieFragment.OnRecyclerViewInteraction mListener) {
+        this.mItems = mItems;
+        this.mContext = mContext;
+        this.mListener = mListener;
     }
 
-
     @Override
-    public TrailerRecyclerviewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MovieHorizontalRecyclerviewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_detail_item_trailer, parent, false);
-        return new TrailerRecyclerviewAdapter.ViewHolder(view);
-    }
+                .inflate(R.layout.list_item_movie_small, parent, false);
+        return new MovieHorizontalRecyclerviewAdapter.ViewHolder(view);    }
 
     @Override
-    public void onBindViewHolder(TrailerRecyclerviewAdapter.ViewHolder holder, int position) {
-        final Trailer item = mItems.get(position);
+    public void onBindViewHolder(MovieHorizontalRecyclerviewAdapter.ViewHolder holder, int position) {
+        final Movie mItem = mItems.get(position);
+
+        holder.binding.textviewTitle.setText(mItem.getTitle());
+        holder.binding.textViewPoint.setText(String.valueOf(mItem.getVoteAverage()));
+
+        String year = String.valueOf(Common.getInstance().parseDate(mItem.getReleaseDate()).get(Calendar.YEAR));
+        holder.binding.textviewReleaseDate.setText(year);
 
         Picasso.with(mContext)
-                .load(ApiClient.getInstance().URL_THUMBNAIL.concat(item.getKey()).concat("/0.jpg"))
+                .load(ApiClient.getInstance().URL_IMAGE.concat(ImageSize.getInstance().NORMAL).concat(mItem.getPosterPath()))
                 .placeholder(R.drawable.ic_movie) //this is optional the image to display while the url image is downloading
                 .error(R.drawable.ic_error_sing)         //this is also optional if some error has occurred in downloading the image this image would be displayed
-                .into(holder.binding.imageThumbnail);
+                .into(holder.binding.imagePoster);
 
-        holder.binding.textViewTitle.setText(item.getName());
-        holder.binding.cardview.setOnClickListener(new View.OnClickListener() {
+        holder.binding.getRoot().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.OnListItemInteraction(item);
+                mListener.OnListItemInteraction(mItem);
             }
         });
 
         setAnimation(holder.binding.getRoot(), position);
 
         holder.binding.executePendingBindings();   // update the view now
-    }
-
-    @Override
-    public int getItemCount() {
-        return mItems.size();
     }
 
     /**
@@ -78,7 +81,7 @@ public class TrailerRecyclerviewAdapter extends RecyclerView.Adapter<TrailerRecy
         // If the bound view wasn't previously displayed on screen, it's animated
         if (position > lastPosition) {
             final Animation animation = AnimationUtils.loadAnimation(
-                    viewToAnimate.getContext(), android.R.anim.fade_in);
+                    viewToAnimate.getContext(), R.anim.slide_in_right);
             animationCount++;
             animation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
@@ -102,6 +105,7 @@ public class TrailerRecyclerviewAdapter extends RecyclerView.Adapter<TrailerRecy
                 public void run() {
                     viewToAnimate.setVisibility(View.VISIBLE);
                     viewToAnimate.startAnimation(animation);
+
                 }
             }, animationCount * 100);
             lastPosition = position;
@@ -115,19 +119,18 @@ public class TrailerRecyclerviewAdapter extends RecyclerView.Adapter<TrailerRecy
         holder.binding.getRoot().clearAnimation();
     }
 
+
+    @Override
+    public int getItemCount() {
+        return mItems.size();
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private final ListDetailItemTrailerBinding binding;
+        private final ListItemMovieSmallBinding binding;
+
         public ViewHolder(View itemView) {
             super(itemView);
-            binding = ListDetailItemTrailerBinding.bind(itemView);
+            binding = ListItemMovieSmallBinding.bind(itemView);
         }
     }
-
-
-    public interface OnRecyclerViewInteraction {
-        // TODO: Update argument type and name
-        void OnListItemInteraction(Trailer trailer);
-
-    }
-
 }

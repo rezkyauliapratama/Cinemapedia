@@ -56,7 +56,7 @@ public class ReviewRecyclerviewAdapter extends RecyclerView.Adapter<ReviewRecycl
         // If the bound view wasn't previously displayed on screen, it's animated
         if (position > lastPosition) {
             final Animation animation = AnimationUtils.loadAnimation(
-                    viewToAnimate.getContext(), android.R.anim.slide_in_left);
+                    viewToAnimate.getContext(), android.R.anim.fade_in);
             animationCount++;
             animation.setAnimationListener(new Animation.AnimationListener() {
                 @Override

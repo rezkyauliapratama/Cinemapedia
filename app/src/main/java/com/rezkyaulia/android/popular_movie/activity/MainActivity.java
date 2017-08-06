@@ -41,7 +41,7 @@ public class MainActivity extends BaseActivity implements MovieFragment.OnRecycl
             mCategory = savedInstanceState.getString(EXTRA1);
             fragment = getSupportFragmentManager().getFragment(savedInstanceState, "movieFragment");
         }else{
-            mCategory = Constant.getInstance().QUERY_POPULAR;
+            mCategory = Constant.getInstance().QUERY_NOW_PLAYING;
             fragment = MovieFragment.newInstance(mCategory);
         }
 
@@ -82,19 +82,29 @@ public class MainActivity extends BaseActivity implements MovieFragment.OnRecycl
 
         //noinspection SimplifiableIfStatement
         //noinspection SimplifiableIfStatement
-        if (id == R.id.sort_most_popular) {
+        if (id == R.id.sort_now_playing) {
+            mCategory = Constant.getInstance().QUERY_NOW_PLAYING;
+            EventBus.instanceOf().setObservable(mCategory);
+
+            return true;
+        }else if(id == R.id.sort_upcoming){
+            mCategory = Constant.getInstance().QUERY_UPCOMING;
+            EventBus.instanceOf().setObservable(mCategory);
+
+            return true;
+        }else if(id == R.id.sort_most_popular){
             mCategory = Constant.getInstance().QUERY_POPULAR;
-            EventBus.instanceOf().setObservable(Constant.getInstance().QUERY_POPULAR);
+            EventBus.instanceOf().setObservable(mCategory);
 
             return true;
         }else if(id == R.id.sort_top_rated){
             mCategory = Constant.getInstance().QUERY_TOP_RATED;
-            EventBus.instanceOf().setObservable(Constant.getInstance().QUERY_TOP_RATED);
+            EventBus.instanceOf().setObservable(mCategory);
 
             return true;
         }else if(id == R.id.favorite){
             mCategory = Constant.getInstance().QUERY_FAVORITE;
-            EventBus.instanceOf().setObservable(Constant.getInstance().QUERY_FAVORITE);
+            EventBus.instanceOf().setObservable(mCategory);
 
             return true;
         }
@@ -107,7 +117,7 @@ public class MainActivity extends BaseActivity implements MovieFragment.OnRecycl
 
     @Override
     public void OnListItemInteraction(Movie movie) {
-        Intent intent = new Intent(this, DetailActivity.class);
+        Intent intent = new Intent(MainActivity.this, DetailActivity.class);
         intent.putExtra(DetailActivity.EXTRA1,movie);
         startActivity(intent);
     }

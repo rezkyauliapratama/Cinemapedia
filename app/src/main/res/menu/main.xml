@@ -13,6 +13,14 @@
         <menu>
 
             <item
+                android:id="@+id/sort_now_playing"
+                android:title="@string/now_playing" />
+
+            <item
+                android:id="@+id/sort_upcoming"
+                android:title="Upcoming" />
+
+            <item
                 android:id="@+id/sort_most_popular"
                 android:title="@string/most_popular" />
 
