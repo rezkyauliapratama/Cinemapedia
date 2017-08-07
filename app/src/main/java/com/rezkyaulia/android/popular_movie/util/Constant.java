@@ -35,11 +35,18 @@ public class Constant {
     public final String QUERY_POPULAR = "popular";
     public final String QUERY_TOP_RATED = "top_rated";
     public final String QUERY_FAVORITE= "favorite";
+    public final String QUERY_NOW_PLAYING= "now_playing";
+    public final String QUERY_UPCOMING= "upcoming";
     public final String CATEGORY = "category";
     public final String ID = "id";
     public final String VIDEO = "videos";
     public final String API_KEY = "api_key";
     public final String YOUTUBE = "vnd.youtube:" ;
+
+    public final int TYPE_MAIN = 1;
+    public final int TYPE_SECONDARY = 2;
+    public final int TYPE_THIRD = 3;
+
 
 
 

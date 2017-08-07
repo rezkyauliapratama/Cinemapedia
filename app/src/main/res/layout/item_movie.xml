@@ -19,7 +19,7 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/colorGrey_200"
+                android:background="@color/colorWhite"
                 android:backgroundTint="#5fff"
                 android:backgroundTintMode="src_over"
                 android:padding="@dimen/margin_xxsmall">

@@ -30,6 +30,7 @@ public class ImageSize {
     }
 
     public final String ORI = "original";
+    public final String SMALL = "w185";
     public final String MEDIUM = "w342";
     public final String NORMAL = "w500";
     public final String LARGE = "w780";

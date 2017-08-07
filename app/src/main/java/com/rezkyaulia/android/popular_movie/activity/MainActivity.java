@@ -37,18 +37,32 @@ public class MainActivity extends BaseActivity implements MovieFragment.OnRecycl
         setSupportActionBar(binding.includeAppBar.toolbar);
         getSupportActionBar().setTitle(R.string.movie);
 
-        if (savedInstanceState != null){
+        if(savedInstanceState != null){
             mCategory = savedInstanceState.getString(EXTRA1);
+            fragment = getSupportFragmentManager().getFragment(savedInstanceState, "movieFragment");
         }else{
-            mCategory = Constant.getInstance().QUERY_POPULAR;
+            mCategory = Constant.getInstance().QUERY_NOW_PLAYING;
+            fragment = MovieFragment.newInstance(mCategory);
         }
 
-        fragment = MovieFragment.newInstance(mCategory);
+        if (fragment != null){
+            displayFragment(binding.includeContent.framelayout.getId(),fragment);
 
-        displayFragment(binding.includeContent.framelayout.getId(),fragment);
+        }
+
+        Timber.e("OnCreate ! ");
 
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //Save the fragment's instance
+        Timber.e("onSaveInstanceState ! ");
+
+        getSupportFragmentManager().putFragment(outState, "movieFragment", fragment );
+        outState.putString(EXTRA1, mCategory);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -68,19 +82,29 @@ public class MainActivity extends BaseActivity implements MovieFragment.OnRecycl
 
         //noinspection SimplifiableIfStatement
         //noinspection SimplifiableIfStatement
-        if (id == R.id.sort_most_popular) {
+        if (id == R.id.sort_now_playing) {
+            mCategory = Constant.getInstance().QUERY_NOW_PLAYING;
+            EventBus.instanceOf().setObservable(mCategory);
+
+            return true;
+        }else if(id == R.id.sort_upcoming){
+            mCategory = Constant.getInstance().QUERY_UPCOMING;
+            EventBus.instanceOf().setObservable(mCategory);
+
+            return true;
+        }else if(id == R.id.sort_most_popular){
             mCategory = Constant.getInstance().QUERY_POPULAR;
-            EventBus.instanceOf().setObservable(Constant.getInstance().QUERY_POPULAR);
+            EventBus.instanceOf().setObservable(mCategory);
 
             return true;
         }else if(id == R.id.sort_top_rated){
             mCategory = Constant.getInstance().QUERY_TOP_RATED;
-            EventBus.instanceOf().setObservable(Constant.getInstance().QUERY_TOP_RATED);
+            EventBus.instanceOf().setObservable(mCategory);
 
             return true;
         }else if(id == R.id.favorite){
             mCategory = Constant.getInstance().QUERY_FAVORITE;
-            EventBus.instanceOf().setObservable(Constant.getInstance().QUERY_FAVORITE);
+            EventBus.instanceOf().setObservable(mCategory);
 
             return true;
         }
@@ -89,16 +113,11 @@ public class MainActivity extends BaseActivity implements MovieFragment.OnRecycl
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        Timber.e("category : "+mCategory);
-        outState.putString(EXTRA1, mCategory);
-        super.onSaveInstanceState(outState);
-    }
+
 
     @Override
     public void OnListItemInteraction(Movie movie) {
-        Intent intent = new Intent(this, DetailActivity.class);
+        Intent intent = new Intent(MainActivity.this, DetailActivity.class);
         intent.putExtra(DetailActivity.EXTRA1,movie);
         startActivity(intent);
     }

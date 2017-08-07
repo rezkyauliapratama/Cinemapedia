@@ -33,7 +33,7 @@ public class DbHelper extends SQLiteOpenHelper {
      * use-case, we wanted to watch out for it and warn you what could happen if you mistakenly
      * version your databases.
      */
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 1;
 
     // Step 1: private static variable of INSTANCE variable
     private static volatile DbHelper INSTANCE;

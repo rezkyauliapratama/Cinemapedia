@@ -2,12 +2,15 @@ package com.rezkyaulia.android.popular_movie.fragment;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.util.DisplayMetrics;
@@ -20,6 +23,7 @@ import com.androidnetworking.error.ANError;
 import com.rezkyaulia.android.popular_movie.database.DbHelper;
 import com.rezkyaulia.android.popular_movie.model.ApiGenreResponse;
 import com.rezkyaulia.android.popular_movie.model.Genre;
+import com.rezkyaulia.android.popular_movie.model.MovieAbstract;
 import com.rezkyaulia.android.popular_movie.util.ApiClient;
 import com.rezkyaulia.android.popular_movie.model.ApiMovieResponse;
 import com.rezkyaulia.android.popular_movie.util.Constant;
@@ -41,11 +45,19 @@ import timber.log.Timber;
 
 public class MovieFragment extends BaseFragment {
     public static final String EXTRA1 = "EXTRA1";
+    public static final String EXTRA2 = "EXTRA2";
     OnRecyclerViewInteraction mListener;
     FragmentRecyclerviewBinding binding;
     private String mCategory;
+    GridLayoutManager mLayoutManager;
 
     private boolean isLandscape = false;
+
+    public final static String LIST_STATE_KEY = "recycler_list_state";
+    Parcelable listState;
+    MovieRecyclerviewAdapter adapter;
+    List<MovieAbstract> movies;
+
 
     public static MovieFragment newInstance(String category) {
         MovieFragment fragment = new MovieFragment();
@@ -58,10 +70,12 @@ public class MovieFragment extends BaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
+        if (getArguments() != null){
             mCategory = getArguments().getString(EXTRA1);
+            movies = new ArrayList<>();
         }
+        Timber.e("mCategory : "+mCategory);
+        setRetainInstance(true);
     }
 
     @Nullable
@@ -70,10 +84,39 @@ public class MovieFragment extends BaseFragment {
         binding =  DataBindingUtil.inflate(inflater, R.layout.fragment_recyclerview,container,false); // LayoutInflater.from(context).inflate(R.layout.content_progressbar,view,false);
 
         if(savedInstanceState != null){
+            Timber.e("SAVEDINSTACESTATE");
             mCategory = savedInstanceState.getString(EXTRA1);
+            movies = savedInstanceState.getParcelableArrayList(EXTRA2);
+            listState = savedInstanceState.getParcelable(LIST_STATE_KEY);
         }
 
+        Timber.e("CATEGORY : "+mCategory);
         return binding.getRoot();
+    }
+
+    private void setLayoutManager(){
+        mLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (!isLandscape){
+                    if (movies.get(position) instanceof MovieAbstract){
+                        if (movies.get(position).getType() == Constant.getInstance().TYPE_MAIN){
+                            return 1;
+                        }else if (movies.get(position).getType() == Constant.getInstance().TYPE_SECONDARY){
+                            return 2;
+                        }
+                    }
+                }else{
+                    if (movies.get(position).getType() == Constant.getInstance().TYPE_MAIN){
+                        return 1;
+                    }else if (movies.get(position).getType() == Constant.getInstance().TYPE_SECONDARY){
+                        return 3;
+                    }
+                }
+                return -1;
+
+            }
+        });
     }
 
     @Override
@@ -95,7 +138,7 @@ public class MovieFragment extends BaseFragment {
             @Override
             public void onNext(String category) {
                 mCategory = category;
-
+                Timber.e("On Next Category : "+category);
                 if (binding.swipeRefreshLayout != null) {
                     binding.swipeRefreshLayout.setRefreshing(true);
                 }
@@ -105,7 +148,19 @@ public class MovieFragment extends BaseFragment {
 
         });
 
+        mLayoutManager = new GridLayoutManager(getContext(),2);
+        binding.recyclerView.setLayoutManager(mLayoutManager);
+        adapter = new MovieRecyclerviewAdapter(getContext(),movies,mListener);
+        binding.recyclerView.setAdapter(adapter);
 
+
+
+        if(savedInstanceState == null){
+            Timber.e("START WITH SAVEINSTANCE == NULL");
+            loadData();
+        }
+
+        setTitle();
         binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -115,17 +170,26 @@ public class MovieFragment extends BaseFragment {
     }
 
 
-    /*@Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null){
-            mCategory = savedInstanceState.getString(EXTRA1);
-            Timber.e("ONACTIVITYCREATED : "+mCategory);
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        listState = mLayoutManager.onSaveInstanceState();
+        outState.putParcelable(LIST_STATE_KEY, listState);
 
-        }
+        Timber.e("category : "+mCategory);
+        outState.putString(EXTRA1, mCategory);
+        outState.putParcelableArrayList(EXTRA2, new ArrayList<MovieAbstract>(movies));
+        super.onSaveInstanceState(outState);
+    }
+
+    public void onConfigurationChanged(Configuration newConfig)
+    {
+        super.onConfigurationChanged(newConfig);
+
+        loadData();
+
 
     }
-*/
+
     @Override
     public void onResume() {
         super.onResume();
@@ -153,12 +217,43 @@ public class MovieFragment extends BaseFragment {
             }
         }
 
-        loadData();
+
+        if (listState != null) {
+            mLayoutManager.onRestoreInstanceState(listState);
+            Timber.e("list state != null");
+
+        }
+
+        if (isLandscape){
+            mLayoutManager.setSpanCount(3);
+        }else{
+            mLayoutManager.setSpanCount(2);
+        }
+
+        setLayoutManager();
+
     }
 
+
+    private void setTitle(){
+        String category = "";
+
+        if(mCategory.equals(Constant.getInstance().QUERY_NOW_PLAYING)){
+            category = getContext().getResources().getString(R.string.now_playing);
+        }else if(mCategory.equals(Constant.getInstance().QUERY_UPCOMING)){
+            category = getContext().getResources().getString(R.string.upcoming);
+        }else if(mCategory.equals(Constant.getInstance().QUERY_POPULAR)){
+            category = getContext().getResources().getString(R.string.most_popular);
+        }else if(mCategory.equals(Constant.getInstance().QUERY_TOP_RATED)){
+            category = getContext().getResources().getString(R.string.top_rated);
+        }else{
+            category = getContext().getResources().getString(R.string.favorite);
+        }
+
+        binding.category.setText(category);
+    }
     private void loadData(){
         final DbHelper dbHelper = DbHelper.getInstance(getContext());
-        String category = "";
 
         AndroidNetworking.cancelAll();
         ApiClient.getInstance().getListGenre(new ApiClient.OnFetchDataListener<ApiGenreResponse>() {
@@ -183,44 +278,53 @@ public class MovieFragment extends BaseFragment {
             }
         });
 
+        setTitle();
 
-            if(mCategory.equals(Constant.getInstance().QUERY_POPULAR)){
-                category = getContext().getResources().getString(R.string.most_popular);
-            }else if(mCategory.equals(Constant.getInstance().QUERY_TOP_RATED)){
-                category = getContext().getResources().getString(R.string.top_rated);
-            }else{
-                category = getContext().getResources().getString(R.string.favorite);
-            }
-
-            binding.category.setText(category);
-
-        if (category.equals(getString(R.string.most_popular)) || category.equals(getString(R.string.top_rated))){
+        if (!mCategory.equals(Constant.getInstance().QUERY_FAVORITE)){
             ApiClient.getInstance().getListMovie(mCategory,new ApiClient.OnFetchDataListener<ApiMovieResponse>() {
                 @Override
                 public void OnResponse(ApiMovieResponse response) {
                     if (response != null){
-                        List<Movie> movies;
-                        movies = response.getResults();
-                        saveGenreData(movies);
-                        ContentValues [] values = dbHelper.getMovieContract().contentValues(movies);
 
-                        int rowInserted = getContext().getContentResolver().bulkInsert(
-                                dbHelper.getMovieContract().CONTENT_URI,
-                                values
-                        );
+                        if (response.getResults().size() > 0){
+                            movies.clear();
 
-                        if (rowInserted>0){
-                            if (isLandscape){
-                                binding.recyclerView.setLayoutManager(new GridLayoutManager(getContext(),3));
-                            }else{
-                                binding.recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
+                            int i=0;
+                            for (Movie movie : response.getResults()){
+                                if (isLandscape){
+                                    if (i==6){
+                                        movies.add(new MovieAbstract(Constant.getInstance().TYPE_SECONDARY,mCategory));
+                                    }
+                                    movies.add(new MovieAbstract(Constant.getInstance().TYPE_MAIN,movie));
+                                }else{
+                                    if (i==4){
+                                        movies.add(new MovieAbstract(Constant.getInstance().TYPE_SECONDARY,mCategory));
+                                    }
+                                    movies.add(new MovieAbstract(Constant.getInstance().TYPE_MAIN,movie));
+                                }
+
+                                i++;
                             }
-                            binding.recyclerView.setAdapter(new MovieRecyclerviewAdapter(getContext(),movies,mListener));
+                            saveGenreData(movies);
 
-                            if (binding.swipeRefreshLayout != null) {
-                                binding.swipeRefreshLayout.setRefreshing(false);
+
+
+                            ContentValues [] values = dbHelper.getMovieContract().contentValues(response.getResults());
+                            int rowInserted = getContext().getContentResolver().bulkInsert(
+                                    dbHelper.getMovieContract().CONTENT_URI,
+                                    values
+                            );
+
+                            if (rowInserted>0){
+                                Timber.e("SIZE MOVIES  : "+rowInserted);
+                                adapter.notifyDataSetChanged();
+
+                                if (binding.swipeRefreshLayout != null) {
+                                    binding.swipeRefreshLayout.setRefreshing(false);
+                                }
                             }
                         }
+
                     }
                 }
 
@@ -234,39 +338,31 @@ public class MovieFragment extends BaseFragment {
                 }
             });
         }else{
-            List<Movie> movies = new ArrayList<>();
-            Cursor cursor = getContext().getContentResolver().query(
-                    DbHelper.getInstance(getContext()).getFavoriteContract().CONTENT_URI,
-                    null,
-                    null,
-                    null,
-                    null);
 
-            if (cursor.moveToFirst())
-                do {
-                    movies.add(DbHelper.getInstance(getContext()).getFavoriteContract().assign(cursor));
-                } while (cursor.moveToNext());
-            cursor.close();
+                Cursor cursor = getContext().getContentResolver().query(
+                        DbHelper.getInstance(getContext()).getFavoriteContract().CONTENT_URI,
+                        null,
+                        null,
+                        null,
+                        null);
 
-            if (movies.size() > 0){
-                if (isLandscape){
-                    binding.recyclerView.setLayoutManager(new GridLayoutManager(getContext(),3));
-                }else{
-                    binding.recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
-                }
-                binding.recyclerView.setAdapter(new MovieRecyclerviewAdapter(getContext(),movies,mListener));
+                movies.clear();
+                if (cursor.moveToFirst())
+                    do {
+                        movies.add(new MovieAbstract(Constant.getInstance().TYPE_MAIN,DbHelper.getInstance(getContext()).getFavoriteContract().assign(cursor)));
+                    } while (cursor.moveToNext());
+                cursor.close();
+
+                adapter.notifyDataSetChanged();
 
                 if (binding.swipeRefreshLayout != null) {
                     binding.swipeRefreshLayout.setRefreshing(false);
                 }
             }
-        }
-
-
 
     }
 
-    private void saveGenreData(List<Movie> movies){
+    private void saveGenreData(List<MovieAbstract> movies){
 
         if (movies.size() > 0){
             Uri uri = DbHelper.getInstance(getContext()).getMovieGenreContract().CONTENT_URI;
@@ -274,14 +370,17 @@ public class MovieFragment extends BaseFragment {
 
             getContext().getContentResolver().delete(uri, null, null);
 
-            for (Movie movie : movies){
-                for (int id : movie.getGenreIds()){
-                    ContentValues value = DbHelper.getInstance(getContext())
-                            .getMovieGenreContract().contentValue(movie.getId(),id);
+            for (MovieAbstract movie : movies){
+                if (movie.getMovie() != null){
+                    for (int id : movie.getMovie().getGenreIds()){
+                        ContentValues value = DbHelper.getInstance(getContext())
+                                .getMovieGenreContract().contentValue(movie.getMovie().getId(),id);
 
-                    getContext().getContentResolver().insert(DbHelper.getInstance(getContext()).getMovieGenreContract().CONTENT_URI, value);
+                        getContext().getContentResolver().insert(DbHelper.getInstance(getContext()).getMovieGenreContract().CONTENT_URI, value);
 
+                    }
                 }
+
             }
         }
 
@@ -294,7 +393,7 @@ public class MovieFragment extends BaseFragment {
             mListener = (OnRecyclerViewInteraction) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
+                    + " must implement OnRecyclerViewInteraction");
         }
     }
 
