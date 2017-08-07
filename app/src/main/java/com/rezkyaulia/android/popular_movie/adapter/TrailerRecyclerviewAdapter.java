@@ -9,7 +9,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import com.rezkyaulia.android.popular_movie.R;
-import com.rezkyaulia.android.popular_movie.databinding.ListDetailItemTrailerBinding;
+import com.rezkyaulia.android.popular_movie.databinding.ItemDetailTrailerBinding;
 import com.rezkyaulia.android.popular_movie.model.Trailer;
 import com.rezkyaulia.android.popular_movie.util.ApiClient;
 import com.squareup.picasso.Picasso;
@@ -39,7 +39,7 @@ public class TrailerRecyclerviewAdapter extends RecyclerView.Adapter<TrailerRecy
     @Override
     public TrailerRecyclerviewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_detail_item_trailer, parent, false);
+                .inflate(R.layout.item_detail_trailer, parent, false);
         return new TrailerRecyclerviewAdapter.ViewHolder(view);
     }
 
@@ -116,10 +116,10 @@ public class TrailerRecyclerviewAdapter extends RecyclerView.Adapter<TrailerRecy
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private final ListDetailItemTrailerBinding binding;
+        private final ItemDetailTrailerBinding binding;
         public ViewHolder(View itemView) {
             super(itemView);
-            binding = ListDetailItemTrailerBinding.bind(itemView);
+            binding = ItemDetailTrailerBinding.bind(itemView);
         }
     }
 

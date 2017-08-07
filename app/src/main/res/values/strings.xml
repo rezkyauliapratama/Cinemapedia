@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Popular-Movie</string>
+    <string name="app_name">Cinemapedia</string>
     <string name="poster">Poster</string>
     <string name="title">title</string>
     <string name="point">Point</string>

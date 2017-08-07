@@ -3,43 +3,37 @@ package com.rezkyaulia.android.popular_movie.activity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.databinding.DataBindingUtil;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.error.ANError;
-import com.google.gson.Gson;
-import com.rezkyaulia.android.popular_movie.adapter.MovieRecyclerviewAdapter;
-import com.rezkyaulia.android.popular_movie.adapter.ReviewRecyclerviewAdapter;
+import com.rezkyaulia.android.popular_movie.adapter.DetailMovieRecyclerviewAdapter;
 import com.rezkyaulia.android.popular_movie.adapter.TrailerRecyclerviewAdapter;
 import com.rezkyaulia.android.popular_movie.database.DbHelper;
-import com.rezkyaulia.android.popular_movie.model.ApiReviewResponse;
-import com.rezkyaulia.android.popular_movie.model.ApiTrailerResponse;
+import com.rezkyaulia.android.popular_movie.model.DetailAbstract;
 import com.rezkyaulia.android.popular_movie.model.Movie;
 import com.rezkyaulia.android.popular_movie.R;
 import com.rezkyaulia.android.popular_movie.databinding.ActivityDetailBinding;
-import com.rezkyaulia.android.popular_movie.model.Review;
 import com.rezkyaulia.android.popular_movie.model.Trailer;
 import com.rezkyaulia.android.popular_movie.util.ApiClient;
-import com.rezkyaulia.android.popular_movie.util.Common;
 import com.rezkyaulia.android.popular_movie.util.Constant;
 import com.rezkyaulia.android.popular_movie.util.ImageSize;
 import com.squareup.picasso.Picasso;
 
-import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
@@ -54,8 +48,13 @@ public class DetailActivity extends BaseActivity implements TrailerRecyclerviewA
 
     Movie mMovie;
 
+    List<DetailAbstract> mItems;
+    Parcelable listState;
+    public final static String LIST_STATE_KEY = "recycler_list_state";
+
     ActivityDetailBinding binding;
     private boolean isLandscape = false;
+    DetailMovieRecyclerviewAdapter adapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,7 +70,7 @@ public class DetailActivity extends BaseActivity implements TrailerRecyclerviewA
         }
 
         mMovie = (Movie) getIntent().getParcelableExtra(EXTRA1);
-
+        mItems = new ArrayList<>();
 
         binding.contentAppbar.appBar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
@@ -89,8 +88,59 @@ public class DetailActivity extends BaseActivity implements TrailerRecyclerviewA
                 }
             }
         });
+
+
+        initRecyclerview();
+        setOnClickFavorite();
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        listState = binding.contentDetail.recyclerViewDetail.getLayoutManager().onSaveInstanceState();
+        outState.putParcelable(LIST_STATE_KEY, listState);
+        outState.putParcelable(EXTRA1, mMovie);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if (savedInstanceState != null){
+            mMovie = savedInstanceState.getParcelable(EXTRA1);
+            listState = savedInstanceState.getParcelable(LIST_STATE_KEY);
+        }
+
+    }
+
+
+
+    private void initRecyclerview(){
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(DetailActivity.this);
+        binding.contentDetail.recyclerViewDetail.setLayoutManager(mLayoutManager);
+        adapter = new DetailMovieRecyclerviewAdapter(DetailActivity.this,mItems,DetailActivity.this);
+        binding.contentDetail.recyclerViewDetail.setAdapter(adapter);
+
+        binding.contentDetail.recyclerViewDetail.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 0 && binding.fab.isShown()) {
+                    binding.fab.hide();
+                }else{
+                    binding.fab.show();
+                }
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                /*if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    binding.fab.hide();
+                }*/
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+        });
+
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar rewardTbl clicks here. The action bar will
@@ -102,13 +152,6 @@ public class DetailActivity extends BaseActivity implements TrailerRecyclerviewA
         return super.onOptionsItemSelected(item);
     }
 
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-
-    }
 
     @Override
     protected void onResume() {
@@ -138,6 +181,13 @@ public class DetailActivity extends BaseActivity implements TrailerRecyclerviewA
         }
 
         loadData();
+        checkFavorite();
+
+        if (listState != null) {
+            binding.contentDetail.recyclerViewDetail.getLayoutManager().onRestoreInstanceState(listState);
+            Timber.e("list state != null");
+
+        }
     }
 
     private void loadData(){
@@ -151,36 +201,15 @@ public class DetailActivity extends BaseActivity implements TrailerRecyclerviewA
                     .error(R.drawable.ic_error_sing)         //this is also optional if some error has occurred in downloading the image this image would be displayed
                     .into(binding.contentAppbar.imageBackdrop);
 
-            String year = String.valueOf(Common.getInstance().parseDate(mMovie.getReleaseDate()).get(Calendar.YEAR));
 
-            binding.contentDetail.textViewYear.setText(year);
-            binding.contentDetail.textViewRate.setText(String.valueOf(mMovie.getVoteAverage()).concat(getString(R.string.per_rated)));
-            binding.contentDetail.textViewOverview.setText(mMovie.getOverview());
+            mItems.clear();
+            mItems.add(0,new DetailAbstract(Constant.getInstance().TYPE_MAIN,mMovie,isLandscape));
+            mItems.add(1,new DetailAbstract(Constant.getInstance().TYPE_SECONDARY,mMovie,isLandscape));
+            mItems.add(2,new DetailAbstract(Constant.getInstance().TYPE_THIRD,mMovie,isLandscape));
 
-            Cursor cursor = getContentResolver().query(
-                    DbHelper.getInstance(this).getMovieGenreContract().CONTENT_URI,
-                    null,
-                    String.valueOf(mMovie.getId()),
-                    null,
-                    null);
-
-            if (cursor.moveToFirst())
-                do {
-                    binding.contentDetail.textViewGenre.append(cursor.getString(cursor.getColumnIndex(DbHelper.getInstance(this).getGenreContract().NAME)).concat("; "));
-                } while (cursor.moveToNext());
-            cursor.close();
-
-            Picasso.with(this)
-                    .load(ApiClient.getInstance().URL_IMAGE.concat(ImageSize.getInstance().MEDIUM).concat(mMovie.getPosterPath()))
-                    .placeholder(R.drawable.ic_movie) //this is optional the image to display while the url image is downloading
-                    .error(R.drawable.ic_error_sing)         //this is also optional if some error has occurred in downloading the image this image would be displayed
-                    .into(binding.contentDetail.imagePoster);
-
-            checkFavorite();
-            getTrailer();
-            getReview();
+            if (adapter != null)
+                adapter.notifyDataSetChanged();
         }
-        setOnClickFavorite();
     }
 
     private void checkFavorite(){
@@ -197,14 +226,13 @@ public class DetailActivity extends BaseActivity implements TrailerRecyclerviewA
 
         Timber.e("cursor getcount : "+cursor.getCount());
         if (cursor.getCount() > 0){
-            binding.contentDetail.imageViewFavorite.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite));
+            binding.fab.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPink_A700)));
         }else{
-            binding.contentDetail.imageViewFavorite.setImageDrawable(getResources().getDrawable(R.drawable.ic_unfavorite));
-
+            binding.fab.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorGrey_400)));
         }
     }
 
-    private void getTrailer(){
+   /* private void getTrailer(){
         ApiClient.getInstance().getListTrailer(mMovie.getId(), new ApiClient.OnFetchDataListener<ApiTrailerResponse>() {
             @Override
             public void OnResponse(ApiTrailerResponse response) {
@@ -227,11 +255,11 @@ public class DetailActivity extends BaseActivity implements TrailerRecyclerviewA
                 Timber.e("ERROR : "+error.getMessage());
             }
         });
-    }
+    }*/
 
     private void setOnClickFavorite(){
 
-        binding.contentDetail.imageViewFavorite.setOnClickListener(new View.OnClickListener() {
+        binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ContentValues value = DbHelper.getInstance(DetailActivity.this)
@@ -255,7 +283,7 @@ public class DetailActivity extends BaseActivity implements TrailerRecyclerviewA
 
     }
 
-    private void getReview(){
+   /* private void getReview(){
         ApiClient.getInstance().getListReview(mMovie.getId(), new ApiClient.OnFetchDataListener<ApiReviewResponse>() {
             @Override
             public void OnResponse(ApiReviewResponse response) {
@@ -276,7 +304,7 @@ public class DetailActivity extends BaseActivity implements TrailerRecyclerviewA
                 Timber.e("ERROR : "+error.getMessage());
             }
         });
-    }
+    }*/
     public  void watchYoutubeVideo(String id) {
         Intent applicationIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Constant.getInstance().YOUTUBE + id));
         Intent browserIntent = new Intent(Intent.ACTION_VIEW,

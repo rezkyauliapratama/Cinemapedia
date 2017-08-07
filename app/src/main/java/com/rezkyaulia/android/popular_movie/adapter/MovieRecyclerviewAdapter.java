@@ -1,7 +1,7 @@
 package com.rezkyaulia.android.popular_movie.adapter;
 
 import android.content.Context;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.view.menu.ListMenuItemView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,13 +12,13 @@ import android.view.animation.AnimationUtils;
 
 import com.androidnetworking.error.ANError;
 import com.rezkyaulia.android.popular_movie.R;
-import com.rezkyaulia.android.popular_movie.databinding.ListItemMovieBinding;
+import com.rezkyaulia.android.popular_movie.databinding.ItemMovieBinding;
+import com.rezkyaulia.android.popular_movie.databinding.ItemMovieSmallBinding;
 import com.rezkyaulia.android.popular_movie.databinding.ListRecyclerviewHorizontalBinding;
 import com.rezkyaulia.android.popular_movie.fragment.MovieFragment;
 import com.rezkyaulia.android.popular_movie.model.ApiMovieResponse;
 import com.rezkyaulia.android.popular_movie.model.Movie;
 import com.rezkyaulia.android.popular_movie.model.MovieAbstract;
-import com.rezkyaulia.android.popular_movie.model.MovieHorizontal;
 import com.rezkyaulia.android.popular_movie.util.ApiClient;
 import com.rezkyaulia.android.popular_movie.util.Common;
 import com.rezkyaulia.android.popular_movie.util.Constant;
@@ -53,7 +53,7 @@ public class MovieRecyclerviewAdapter extends RecyclerView.Adapter<RecyclerView.
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == Constant.getInstance().TYPE_MAIN) {
             View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.list_item_movie, parent, false);
+                    .inflate(R.layout.item_movie, parent, false);
             return new MainViewHolder(view);
         } else if (viewType == Constant.getInstance().TYPE_SECONDARY){
             View view = LayoutInflater.from(parent.getContext())
@@ -206,10 +206,10 @@ public class MovieRecyclerviewAdapter extends RecyclerView.Adapter<RecyclerView.
 
 
     private class MainViewHolder extends RecyclerView.ViewHolder {
-        private final ListItemMovieBinding binding;
+        private final ItemMovieBinding binding;
         public MainViewHolder(View itemView) {
             super(itemView);
-            binding = ListItemMovieBinding.bind(itemView);
+            binding = ItemMovieBinding.bind(itemView);
         }
     }
 

@@ -292,12 +292,12 @@ public class MovieFragment extends BaseFragment {
                             int i=0;
                             for (Movie movie : response.getResults()){
                                 if (isLandscape){
-                                    if (i==3){
+                                    if (i==6){
                                         movies.add(new MovieAbstract(Constant.getInstance().TYPE_SECONDARY,mCategory));
                                     }
                                     movies.add(new MovieAbstract(Constant.getInstance().TYPE_MAIN,movie));
                                 }else{
-                                    if (i==2){
+                                    if (i==4){
                                         movies.add(new MovieAbstract(Constant.getInstance().TYPE_SECONDARY,mCategory));
                                     }
                                     movies.add(new MovieAbstract(Constant.getInstance().TYPE_MAIN,movie));

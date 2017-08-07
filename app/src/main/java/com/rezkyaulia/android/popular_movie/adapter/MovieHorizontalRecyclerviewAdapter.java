@@ -9,9 +9,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import com.rezkyaulia.android.popular_movie.R;
-import com.rezkyaulia.android.popular_movie.databinding.ListItemMovieBinding;
-import com.rezkyaulia.android.popular_movie.databinding.ListItemMovieSmallBinding;
-import com.rezkyaulia.android.popular_movie.databinding.ListRecyclerviewHorizontalBinding;
+import com.rezkyaulia.android.popular_movie.databinding.ItemMovieSmallBinding;
 import com.rezkyaulia.android.popular_movie.fragment.MovieFragment;
 import com.rezkyaulia.android.popular_movie.model.Movie;
 import com.rezkyaulia.android.popular_movie.util.ApiClient;
@@ -43,7 +41,7 @@ public class MovieHorizontalRecyclerviewAdapter extends RecyclerView.Adapter<Mov
     @Override
     public MovieHorizontalRecyclerviewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item_movie_small, parent, false);
+                .inflate(R.layout.item_movie_small, parent, false);
         return new MovieHorizontalRecyclerviewAdapter.ViewHolder(view);    }
 
     @Override
@@ -126,11 +124,11 @@ public class MovieHorizontalRecyclerviewAdapter extends RecyclerView.Adapter<Mov
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private final ListItemMovieSmallBinding binding;
+        private final ItemMovieSmallBinding binding;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            binding = ListItemMovieSmallBinding.bind(itemView);
+            binding = ItemMovieSmallBinding.bind(itemView);
         }
     }
 }

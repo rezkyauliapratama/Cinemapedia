@@ -31,7 +31,7 @@
         <!-- Our ContentProvider -->
         <provider
             android:name=".data.ContentProviderHelper"
-            android:authorities= "com.rezkyaulia.android.popular_movie"
+            android:authorities= "com.rezkyaulia.android.cinemapedia"
             android:exported="false"/>
     </application>
 

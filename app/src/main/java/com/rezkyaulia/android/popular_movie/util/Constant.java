@@ -45,6 +45,7 @@ public class Constant {
 
     public final int TYPE_MAIN = 1;
     public final int TYPE_SECONDARY = 2;
+    public final int TYPE_THIRD = 3;
 
 
 
