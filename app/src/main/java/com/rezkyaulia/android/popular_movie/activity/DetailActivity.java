@@ -196,7 +196,7 @@ public class DetailActivity extends BaseActivity implements TrailerRecyclerviewA
             binding.contentAppbar.textViewTitle.setText(mMovie.getTitle());
             binding.contentAppbar.textViewTitleBar.setText(mMovie.getTitle());
             Picasso.with(this)
-                    .load(ApiClient.getInstance().URL_IMAGE.concat(ImageSize.getInstance().ORI).concat(mMovie.getBackdropPath()))
+                    .load(ApiClient.getInstance().URL_IMAGE.concat(ImageSize.getInstance().ORI).concat(mMovie.getBackdropPath() != null ? mMovie.getBackdropPath() : ""))
                     .placeholder(R.drawable.ic_movie) //this is optional the image to display while the url image is downloading
                     .error(R.drawable.ic_error_sing)         //this is also optional if some error has occurred in downloading the image this image would be displayed
                     .into(binding.contentAppbar.imageBackdrop);

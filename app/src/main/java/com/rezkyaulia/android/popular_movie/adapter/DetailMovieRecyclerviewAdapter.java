@@ -112,7 +112,7 @@ public class DetailMovieRecyclerviewAdapter extends RecyclerView.Adapter<Recycle
         cursor.close();
 
         Picasso.with(mContext)
-                .load(ApiClient.getInstance().URL_IMAGE.concat(ImageSize.getInstance().MEDIUM).concat(movie.getPosterPath()))
+                .load(ApiClient.getInstance().URL_IMAGE.concat(ImageSize.getInstance().MEDIUM).concat(movie.getPosterPath() != null ? movie.getPosterPath() : ""))
                 .placeholder(R.drawable.ic_movie) //this is optional the image to display while the url image is downloading
                 .error(R.drawable.ic_error_sing)         //this is also optional if some error has occurred in downloading the image this image would be displayed
                 .into(holder.binding.imagePoster);
