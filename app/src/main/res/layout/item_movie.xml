@@ -62,7 +62,7 @@
                             android:layout_height="wrap_content"
                             android:visibility="visible" />
 
-                        <TextView
+                        <com.app.infideap.stylishwidget.view.ATextView
                             android:id="@+id/textView_point"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -76,7 +76,7 @@
                         android:layout_height="@dimen/margin_xsmall"
                         android:visibility="visible" />
 
-                    <TextView
+                    <com.app.infideap.stylishwidget.view.ATextView
                         android:id="@+id/textview_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -90,7 +90,7 @@
                         android:layout_height="@dimen/margin_xsmall"
                         android:visibility="visible" />
 
-                    <TextView
+                    <com.app.infideap.stylishwidget.view.ATextView
                         android:id="@+id/textview_releaseDate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -103,7 +103,7 @@
                         android:layout_height="@dimen/margin_small"
                         android:visibility="visible" />
 
-                    <TextView
+                    <com.app.infideap.stylishwidget.view.ATextView
                         android:id="@+id/textview_genre"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

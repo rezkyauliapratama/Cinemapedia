@@ -32,7 +32,7 @@
                     android:adjustViewBounds="true"
                     android:transitionName="@string/poster" />
 
-                <TextView
+                <com.app.infideap.stylishwidget.view.ATextView
                     android:id="@+id/textView_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -52,7 +52,7 @@
                 app:popupTheme="@style/AppTheme.PopupOverlay"
                 app:layout_collapseMode="pin"
                 >
-                <TextView
+                <com.app.infideap.stylishwidget.view.ATextView
                     android:id="@+id/textView_titleBar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

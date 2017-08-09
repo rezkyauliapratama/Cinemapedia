@@ -19,6 +19,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.androidnetworking.AndroidNetworking;
+import com.androidnetworking.common.Priority;
+import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.StringRequestListener;
 import com.app.infideap.stylishwidget.view.Stylish;
 import com.rezkyaulia.android.popular_movie.database.DbHelper;
 import com.rezkyaulia.android.popular_movie.util.Common;
@@ -26,7 +30,6 @@ import com.rezkyaulia.android.popular_movie.util.Constant;
 import com.rezkyaulia.android.popular_movie.model.Movie;
 import com.rezkyaulia.android.popular_movie.R;
 import com.rezkyaulia.android.popular_movie.databinding.ActivityMainBinding;
-import com.rezkyaulia.android.popular_movie.util.CustomTypefaceSpan;
 import com.rezkyaulia.android.popular_movie.util.EventBus;
 import com.rezkyaulia.android.popular_movie.fragment.MovieFragment;
 import com.rezkyaulia.android.popular_movie.util.PreferencesManager;
@@ -66,7 +69,7 @@ public class MainActivity extends BaseActivity implements MovieFragment.OnRecycl
             displayFragment(binding.includeContent.framelayout.getId(),fragment);
 
         }
-
+        checkVersion();
         Timber.e("OnCreate ! ");
 
     }
@@ -136,6 +139,33 @@ public class MainActivity extends BaseActivity implements MovieFragment.OnRecycl
 
         if (PreferencesManager.getInstance().getCurrentVersion() != versionCode) {
             final View view = getLayoutInflater().inflate(R.layout.layout_whatsnew, null);
+            AndroidNetworking.get("https://raw.githubusercontent.com/rezkyauliapratama/Cinemapedia/dev_rezky/app/src/main/play/en-GB/whatsnew")
+                    .setPriority(Priority.HIGH)
+                    .build()
+                    .getAsString(new StringRequestListener() {
+                                     @Override
+                                     public void onResponse(String response) {
+                                         TextView textView = (TextView) view.findViewById(R.id.textView_whatsnew_desc);
+
+                                         Spannable spannable = style(response);
+                                         textView.setText(spannable);
+                                         new AlertDialog.Builder(MainActivity.this)
+                                                 .setView(view)
+                                                 .setPositiveButton(R.string.gotit, new DialogInterface.OnClickListener() {
+                                                     @Override
+                                                     public void onClick(DialogInterface dialog, int which) {
+                                                         PreferencesManager.getInstance().setCurrentVersion(versionCode);
+                                                     }
+                                                 })
+                                                 .create().show();
+                                     }
+
+                                     @Override
+                                     public void onError(ANError anError) {
+                                         Timber.e("ERROR : "+anError.getMessage());
+                                     }
+                                 }
+                    );
             /*Atom.with(this)
                     .load("https://raw.githubusercontent.com/truevoxasia/Recruiter-App/alpha/app/src/main/play/en-GB/whatsnew?token=AEIfcGQfFRs0rUCPD4lNXh6NvtBKAawlks5ZivmLwA%3D%3D")
                     .asString().setCallback(new FutureCallback<String>() {
@@ -174,9 +204,6 @@ public class MainActivity extends BaseActivity implements MovieFragment.OnRecycl
                     ContextCompat.getColor(this, R.color.colorPrimary)
             ), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-            builder.setSpan(new CustomTypefaceSpan(
-                    "", Stylish.getInstance().getBold()
-            ), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         pattern = Pattern.compile("================");
         matcher = pattern.matcher(result);
@@ -191,9 +218,7 @@ public class MainActivity extends BaseActivity implements MovieFragment.OnRecycl
             builder.setSpan(new StrikethroughSpan(
             ), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-            builder.setSpan(new CustomTypefaceSpan(
-                    "", Stylish.getInstance().getBold()
-            ), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
         }
         return builder;
     }
