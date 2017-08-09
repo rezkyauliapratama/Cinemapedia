@@ -1,5 +1,9 @@
 package com.rezkyaulia.android.popular_movie.util;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -47,5 +51,19 @@ public class Common {
         } catch (ParseException e) {
             return null;
         }
+    }
+
+    public int getVersionCode(Context context) {
+        PackageInfo pInfo = null;
+        try {
+            pInfo = context.getPackageManager().getPackageInfo(
+                    context.getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (pInfo != null)
+            return pInfo.versionCode;
+        else
+            return 1;
     }
 }

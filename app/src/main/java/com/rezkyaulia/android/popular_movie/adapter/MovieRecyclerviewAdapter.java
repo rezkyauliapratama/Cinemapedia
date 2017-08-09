@@ -9,9 +9,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.HorizontalScrollView;
 
 import com.androidnetworking.error.ANError;
 import com.rezkyaulia.android.popular_movie.R;
+import com.rezkyaulia.android.popular_movie.databinding.ItemLoadingBinding;
 import com.rezkyaulia.android.popular_movie.databinding.ItemMovieBinding;
 import com.rezkyaulia.android.popular_movie.databinding.ItemMovieSmallBinding;
 import com.rezkyaulia.android.popular_movie.databinding.ListRecyclerviewHorizontalBinding;
@@ -34,7 +36,7 @@ import timber.log.Timber;
  * Created by Rezky Aulia Pratama on 7/1/2017.
  */
 
-public class MovieRecyclerviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+public class MovieRecyclerviewAdapter extends BaseAdapter{
     private Context mContext;
     private List<MovieAbstract> mItems;
     private MovieFragment.OnRecyclerViewInteraction mListener;
@@ -59,18 +61,27 @@ public class MovieRecyclerviewAdapter extends RecyclerView.Adapter<RecyclerView.
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.list_recyclerview_horizontal, parent, false);
             return new HorizontalViewHolder(view);
+        }else if (viewType == Constant.getInstance().TYPE_NULL){
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_loading, parent, false);
+            return new LoadingViewHolder(view);
         }
         return null;
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (mItems.get(position) instanceof MovieAbstract){
-            if (mItems.get(position).getType() == Constant.getInstance().TYPE_MAIN){
-                return Constant.getInstance().TYPE_MAIN;
-            }else if (mItems.get(position).getType() == Constant.getInstance().TYPE_SECONDARY){
-                return Constant.getInstance().TYPE_SECONDARY;
+        if (mItems.get(position)!=null){
+            if (mItems.get(position) instanceof MovieAbstract){
+                if (mItems.get(position).getType() == Constant.getInstance().TYPE_MAIN){
+                    return Constant.getInstance().TYPE_MAIN;
+                }else if (mItems.get(position).getType() == Constant.getInstance().TYPE_SECONDARY){
+                    return Constant.getInstance().TYPE_SECONDARY;
+                }
             }
+
+        }else{
+            return  Constant.getInstance().TYPE_NULL;
         }
         return super.getItemViewType(position);
 
@@ -80,8 +91,10 @@ public class MovieRecyclerviewAdapter extends RecyclerView.Adapter<RecyclerView.
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof MainViewHolder) {
             onMainBindViewHolder((MainViewHolder) holder, position);
-        } else {
+        } else if (holder instanceof HorizontalViewHolder) {
             onSecondaryBindViewHolder((HorizontalViewHolder) holder, position);
+        }else if (holder instanceof LoadingViewHolder) {
+            onNullBindViewHolder((LoadingViewHolder)holder,position);
         }
     }
 
@@ -95,7 +108,7 @@ public class MovieRecyclerviewAdapter extends RecyclerView.Adapter<RecyclerView.
         holder.binding.textviewReleaseDate.setText(year);
 
         Picasso.with(mContext)
-                .load(ApiClient.getInstance().URL_IMAGE.concat(ImageSize.getInstance().NORMAL).concat(mItem.getPosterPath()))
+                .load(ApiClient.getInstance().URL_IMAGE.concat(ImageSize.getInstance().NORMAL).concat(mItem.getPosterPath() != null?mItem.getPosterPath():""))
                 .placeholder(R.drawable.ic_movie) //this is optional the image to display while the url image is downloading
                 .error(R.drawable.ic_error_sing)         //this is also optional if some error has occurred in downloading the image this image would be displayed
                 .into(holder.binding.imagePoster);
@@ -107,7 +120,7 @@ public class MovieRecyclerviewAdapter extends RecyclerView.Adapter<RecyclerView.
             }
         });
 
-        setAnimation(holder.binding.getRoot(), position);
+//        setAnimation(holder.binding.getRoot(), position);
 
         holder.binding.executePendingBindings();   // update the view now
     }
@@ -127,7 +140,7 @@ public class MovieRecyclerviewAdapter extends RecyclerView.Adapter<RecyclerView.
 
         holder.binding.viewTitle.textviewTitle.setText(category);
 
-        ApiClient.getInstance().getListMovie(query, new ApiClient.OnFetchDataListener<ApiMovieResponse>() {
+        ApiClient.getInstance().getListMovie(query,1, new ApiClient.OnFetchDataListener<ApiMovieResponse>() {
             @Override
             public void OnResponse(ApiMovieResponse response) {
                 RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(mContext,LinearLayoutManager.HORIZONTAL,false);
@@ -146,8 +159,13 @@ public class MovieRecyclerviewAdapter extends RecyclerView.Adapter<RecyclerView.
 
     }
 
+    public void onNullBindViewHolder(final LoadingViewHolder holder, final int position) {
+        holder.binding.progressBar1.setIndeterminate(true);
+        holder.binding.executePendingBindings();
+    }
 
-    @Override
+
+        @Override
     public int getItemCount() {
         return mItems.size();
     }
@@ -196,9 +214,12 @@ public class MovieRecyclerviewAdapter extends RecyclerView.Adapter<RecyclerView.
         if (holder instanceof MainViewHolder) {
             ((MainViewHolder)holder).binding.getRoot().setVisibility(View.VISIBLE);
             ((MainViewHolder)holder).binding.getRoot().clearAnimation();
-        } else {
+        } else if (holder instanceof HorizontalViewHolder) {
             ((HorizontalViewHolder)holder).binding.getRoot().setVisibility(View.VISIBLE);
             ((HorizontalViewHolder)holder).binding.getRoot().clearAnimation();
+        } else if (holder instanceof LoadingViewHolder) {
+            ((LoadingViewHolder)holder).binding.getRoot().setVisibility(View.VISIBLE);
+            ((LoadingViewHolder)holder).binding.getRoot().clearAnimation();
         }
     }
 
@@ -221,5 +242,11 @@ public class MovieRecyclerviewAdapter extends RecyclerView.Adapter<RecyclerView.
         }
     }
 
-
+    private class LoadingViewHolder extends RecyclerView.ViewHolder {
+        private ItemLoadingBinding binding;
+        public LoadingViewHolder(View view) {
+            super(view);
+            binding = ItemLoadingBinding.bind(view);
+        }
+    }
 }

@@ -41,11 +41,13 @@ public class Constant {
     public final String ID = "id";
     public final String VIDEO = "videos";
     public final String API_KEY = "api_key";
+    public final String PAGE = "page";
     public final String YOUTUBE = "vnd.youtube:" ;
 
     public final int TYPE_MAIN = 1;
     public final int TYPE_SECONDARY = 2;
     public final int TYPE_THIRD = 3;
+    public final int TYPE_NULL = 4;
 
 
 

@@ -29,20 +29,19 @@ public class FavoriteContract implements BaseColumns {
         final String CREATE_TABLE =
                 "CREATE TABLE " + TABLE_NAME + " (" +
                         ID                 + " INTEGER PRIMARY KEY, "  +
-                        POSTER_PATH        + " STRING NOT NULL, "      +
-                        ADULT              + " INTEGER NOT NULL,"      +
-                        OVERVIEW           + " STRING NOT NULL, "      +
-                        RELEASE_DATE       + " STRING NOT NULL, "      +
-                        ORIGINAL_TITLE     + " STRING NOT NULL, "      +
-                        ORIGINAL_LANGUAGE  + " STRING NOT NULL, "      +
-                        TITLE              + " STRING NOT NULL, "      +
-                        BACKDROP_PATH      + " STRING NOT NULL, "      +
-                        POPULARITY         + " REAL NOT NULL, "        +
-                        VOTE_COUNT         + " INTEGER NOT NULL, "     +
-                        VIDEO              + " INTEGER NOT NULL, "     +
-                        VOTE_AVERAGE       + " REAL NOT NULL, "        +
-
-                        " UNIQUE (" + ID + ") ON CONFLICT FAIL);";
+                        POSTER_PATH        + " STRING, "      +
+                        ADULT              + " INTEGER,"      +
+                        OVERVIEW           + " STRING, "      +
+                        RELEASE_DATE       + " STRING, "      +
+                        ORIGINAL_TITLE     + " STRING, "      +
+                        ORIGINAL_LANGUAGE  + " STRING, "      +
+                        TITLE              + " STRING, "      +
+                        BACKDROP_PATH      + " STRING, "      +
+                        POPULARITY         + " REAL, "        +
+                        VOTE_COUNT         + " INTEGER, "     +
+                        VIDEO              + " INTEGER, "     +
+                        VOTE_AVERAGE       + " REAL, "        +
+                        " UNIQUE (" + ID + ") ON CONFLICT REPLACE);";
 
         sqLiteDatabase.execSQL(DROP_TABLE);
         sqLiteDatabase.execSQL(CREATE_TABLE);

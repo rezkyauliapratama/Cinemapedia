@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 
+import com.google.gson.Gson;
 import com.rezkyaulia.android.popular_movie.activity.BaseActivity;
 import com.rezkyaulia.android.popular_movie.data.DataPath;
 import com.rezkyaulia.android.popular_movie.database.DbHelper;
@@ -32,19 +33,18 @@ public class MovieContract implements BaseColumns {
         final String CREATE_TABLE =
                 "CREATE TABLE " + TABLE_NAME + " (" +
                         ID                 + " INTEGER PRIMARY KEY, "  +
-                        POSTER_PATH        + " STRING NOT NULL, "      +
-                        ADULT              + " INTEGER NOT NULL,"      +
-                        OVERVIEW           + " STRING NOT NULL, "      +
-                        RELEASE_DATE       + " STRING NOT NULL, "      +
-                        ORIGINAL_TITLE     + " STRING NOT NULL, "      +
-                        ORIGINAL_LANGUAGE  + " STRING NOT NULL, "      +
-                        TITLE              + " STRING NOT NULL, "      +
-                        BACKDROP_PATH      + " STRING NOT NULL, "      +
-                        POPULARITY         + " REAL NOT NULL, "        +
-                        VOTE_COUNT         + " INTEGER NOT NULL, "     +
-                        VIDEO              + " INTEGER NOT NULL, "     +
-                        VOTE_AVERAGE       + " REAL NOT NULL, "        +
-
+                        POSTER_PATH        + " STRING, "      +
+                        ADULT              + " INTEGER,"      +
+                        OVERVIEW           + " STRING, "      +
+                        RELEASE_DATE       + " STRING, "      +
+                        ORIGINAL_TITLE     + " STRING, "      +
+                        ORIGINAL_LANGUAGE  + " STRING, "      +
+                        TITLE              + " STRING, "      +
+                        BACKDROP_PATH      + " STRING, "      +
+                        POPULARITY         + " REAL, "        +
+                        VOTE_COUNT         + " INTEGER, "     +
+                        VIDEO              + " INTEGER, "     +
+                        VOTE_AVERAGE       + " REAL, "        +
                         " UNIQUE (" + ID + ") ON CONFLICT REPLACE);";
 
         sqLiteDatabase.execSQL(DROP_TABLE);
