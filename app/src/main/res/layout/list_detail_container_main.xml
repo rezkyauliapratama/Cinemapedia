@@ -35,7 +35,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <TextView
+                <com.app.infideap.stylishwidget.view.ATextView
                     android:id="@+id/textView_year"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
                     android:text="@string/year"/>
 
 
-                <TextView
+                <com.app.infideap.stylishwidget.view.ATextView
                     android:id="@+id/textView_rate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -57,7 +57,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/margin_small" />
 
-                <TextView
+                <com.app.infideap.stylishwidget.view.ATextView
                     android:id="@+id/textView_genre"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -68,7 +68,7 @@
 
         </LinearLayout>
 
-        <TextView
+        <com.app.infideap.stylishwidget.view.ATextView
             android:id="@+id/textView_overview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
