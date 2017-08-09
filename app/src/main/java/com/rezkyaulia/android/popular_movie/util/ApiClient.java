@@ -50,10 +50,11 @@ public class ApiClient {
     public final String URL_TRAILER = "http://api.themoviedb.org/3/movie/";
     public final String URL_YOUTUBE = "http://www.youtube.com/watch?v=";
 
-    public void getListMovie(final String query, final OnFetchDataListener<ApiMovieResponse> listener){
+    public void getListMovie(final String query,int page, final OnFetchDataListener<ApiMovieResponse> listener){
         AndroidNetworking.get(URL_MOVIE.concat("{".concat(Constant.getInstance().CATEGORY).concat("}")))
                 .addPathParameter(Constant.getInstance().CATEGORY,query)
                 .addQueryParameter(Constant.getInstance().API_KEY,apiKey)
+                .addQueryParameter(Constant.getInstance().PAGE,String.valueOf(page))
                 .setPriority(Priority.HIGH)
                 .build()
                 .getAsObject(ApiMovieResponse.class,new ParsedRequestListener<ApiMovieResponse>() {
