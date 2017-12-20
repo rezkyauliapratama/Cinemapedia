@@ -84,7 +84,6 @@ public class MovieRecyclerviewAdapter extends BaseAdapter{
             return  Constant.getInstance().TYPE_NULL;
         }
         return super.getItemViewType(position);
-
     }
 
     @Override
@@ -165,7 +164,7 @@ public class MovieRecyclerviewAdapter extends BaseAdapter{
     }
 
 
-        @Override
+    @Override
     public int getItemCount() {
         return mItems.size();
     }

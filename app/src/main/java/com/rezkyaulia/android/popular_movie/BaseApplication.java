@@ -21,7 +21,7 @@ public class BaseApplication extends Application {
         AndroidNetworking.initialize(getApplicationContext());
         PreferencesManager.init(this);
 
-        String fontFolder = "fonts/Exo_2/Exo2-";
+              String fontFolder = "fonts/Exo_2/Exo2-";
         Stylish.getInstance().set(
                 fontFolder.concat("Regular.ttf"),
                 fontFolder.concat("Medium.ttf"),

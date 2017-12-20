@@ -121,7 +121,8 @@ public class ContentProviderHelper extends ContentProvider{
 
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
 
-        return retCursor;    }
+        return retCursor;
+    }
 
     @Nullable
     @Override

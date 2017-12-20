@@ -3,12 +3,15 @@ package com.rezkyaulia.android.popular_movie.util;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.DownloadProgressListener;
 import com.androidnetworking.interfaces.ParsedRequestListener;
 import com.rezkyaulia.android.popular_movie.BuildConfig;
 import com.rezkyaulia.android.popular_movie.model.ApiGenreResponse;
 import com.rezkyaulia.android.popular_movie.model.ApiMovieResponse;
 import com.rezkyaulia.android.popular_movie.model.ApiReviewResponse;
 import com.rezkyaulia.android.popular_movie.model.ApiTrailerResponse;
+
+import timber.log.Timber;
 
 /**
  * Created by Rezky Aulia Pratama on 7/1/2017.
@@ -57,6 +60,12 @@ public class ApiClient {
                 .addQueryParameter(Constant.getInstance().PAGE,String.valueOf(page))
                 .setPriority(Priority.HIGH)
                 .build()
+                .setDownloadProgressListener(new DownloadProgressListener() {
+                    @Override
+                    public void onProgress(long bytesDownloaded, long totalBytes) {
+                        Timber.e("BYTE : "+bytesDownloaded/totalBytes);
+                    }
+                })
                 .getAsObject(ApiMovieResponse.class,new ParsedRequestListener<ApiMovieResponse>() {
                     @Override
                     public void onResponse(ApiMovieResponse response) {
@@ -79,6 +88,12 @@ public class ApiClient {
                 .addQueryParameter(Constant.getInstance().API_KEY,apiKey)
                 .setPriority(Priority.HIGH)
                 .build()
+                .setDownloadProgressListener(new DownloadProgressListener() {
+                    @Override
+                    public void onProgress(long bytesDownloaded, long totalBytes) {
+                        Timber.e("BYTE : "+bytesDownloaded/totalBytes);
+                    }
+                })
                 .getAsObject(ApiGenreResponse.class,new ParsedRequestListener<ApiGenreResponse>() {
                     @Override
                     public void onResponse(ApiGenreResponse response) {
@@ -105,6 +120,12 @@ public class ApiClient {
                 .addQueryParameter(Constant.getInstance().API_KEY,apiKey)
                 .setPriority(Priority.HIGH)
                 .build()
+                .setDownloadProgressListener(new DownloadProgressListener() {
+                    @Override
+                    public void onProgress(long bytesDownloaded, long totalBytes) {
+                        Timber.e("BYTE : "+bytesDownloaded/totalBytes);
+                    }
+                })
                 .getAsObject(ApiTrailerResponse.class,new ParsedRequestListener<ApiTrailerResponse>() {
                     @Override
                     public void onResponse(ApiTrailerResponse response) {
@@ -129,6 +150,12 @@ public class ApiClient {
                 .addQueryParameter(Constant.getInstance().API_KEY,apiKey)
                 .setPriority(Priority.HIGH)
                 .build()
+                .setDownloadProgressListener(new DownloadProgressListener() {
+                    @Override
+                    public void onProgress(long bytesDownloaded, long totalBytes) {
+                        Timber.e("BYTE : "+bytesDownloaded/totalBytes);
+                    }
+                })
                 .getAsObject(ApiReviewResponse.class,new ParsedRequestListener<ApiReviewResponse>() {
                     @Override
                     public void onResponse(ApiReviewResponse response) {
