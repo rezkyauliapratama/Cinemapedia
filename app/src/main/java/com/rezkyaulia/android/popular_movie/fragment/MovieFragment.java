@@ -294,52 +294,52 @@ public class MovieFragment extends BaseFragment {
 
         binding.category.setText(category);
     }
-    private void loadData(){
-        if (binding.swipeRefreshLayout != null) {
-            binding.swipeRefreshLayout.setRefreshing(true);
-        }
-
-        if (!mCategory.equals(Constant.getInstance().QUERY_FAVORITE)){
-
-            ApiClient.getInstance().getListMovie(mCategory,mPage,new ApiClient.OnFetchDataListener<ApiMovieResponse>() {
-                @Override
-                public void OnResponse(ApiMovieResponse response) {
-                    new DownloadTask().execute(response);
-
-                }
-
-                @Override
-                public void OnError(ANError error) {
-                    Timber.e("ERROR :".concat(error.getMessage()));
-                    mPage--;
-                    if (binding.swipeRefreshLayout != null) {
-                        binding.swipeRefreshLayout.setRefreshing(false);
-                    }
-                }
-            });
-        }else{
-
-            Cursor cursor = getContext().getContentResolver().query(
-                    DbHelper.getInstance(getContext()).getFavoriteContract().CONTENT_URI,
-                    null,
-                    null,
-                    null,
-                    null);
-
-            movies.clear();
-            if (cursor.moveToFirst())
-                do {
-                    movies.add(new MovieAbstract(Constant.getInstance().TYPE_MAIN,DbHelper.getInstance(getContext()).getFavoriteContract().assign(cursor)));
-                } while (cursor.moveToNext());
-            cursor.close();
-            setTitle();
-            adapter.notifyDataSetChanged();
-            adapter.setLoaded();
+        private void loadData(){
             if (binding.swipeRefreshLayout != null) {
-                binding.swipeRefreshLayout.setRefreshing(false);
+                binding.swipeRefreshLayout.setRefreshing(true);
+            }
+
+            if (!mCategory.equals(Constant.getInstance().QUERY_FAVORITE)){
+
+                ApiClient.getInstance().getListMovie(mCategory,mPage,new ApiClient.OnFetchDataListener<ApiMovieResponse>() {
+                    @Override
+                    public void OnResponse(ApiMovieResponse response) {
+                        new DownloadTask().execute(response);
+
+                    }
+
+                    @Override
+                    public void OnError(ANError error) {
+                        Timber.e("ERROR :".concat(error.getMessage()));
+                        mPage--;
+                        if (binding.swipeRefreshLayout != null) {
+                            binding.swipeRefreshLayout.setRefreshing(false);
+                        }
+                    }
+                });
+            }else{
+
+                Cursor cursor = getContext().getContentResolver().query(
+                        DbHelper.getInstance(getContext()).getFavoriteContract().CONTENT_URI,
+                        null,
+                        null,
+                        null,
+                        null);
+
+                movies.clear();
+                if (cursor.moveToFirst())
+                    do {
+                        movies.add(new MovieAbstract(Constant.getInstance().TYPE_MAIN,DbHelper.getInstance(getContext()).getFavoriteContract().assign(cursor)));
+                    } while (cursor.moveToNext());
+                cursor.close();
+                setTitle();
+                adapter.notifyDataSetChanged();
+                adapter.setLoaded();
+                if (binding.swipeRefreshLayout != null) {
+                    binding.swipeRefreshLayout.setRefreshing(false);
+                }
             }
         }
-    }
 
     private void saveGenreData(List<MovieAbstract> movies){
 
